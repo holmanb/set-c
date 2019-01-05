@@ -1,14 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
+#include "util.h"
 
 #define TEST
 
 // This enum is used to define the object type so that 
 // a single set can have multiple types in it AND have a 
-// coherent way to check equality (check type, if they match, 
+// coherent way to check equality (check type, then if they match, 
 // have a mega-switching function to check and cast appropriately
-// if all goes well, we might even get a user-defined enum values 
+// if all goes well, we might even add support for ADTs with user-defined enum values 
 // (and a method for registering a compare function for the user defined values) 
 
 typedef enum { // TODO: create function to pass in function type and enum for it 
@@ -25,18 +25,26 @@ typedef enum { // TODO: create function to pass in function type and enum for it
     FLOAT,
     DOUBLE,
     UDOUBLE,
-    LONG_DOUBLE
+    LONG_DOUBLE,
+    /*
+    #####################################
+    # DO NOT DELETE FIELDS OF THIS ENUM #
+    #####################################
+
+    User may add to this enum for an abstract data type. 
+    The user must create a function for comparing equality of the data type. 
+    This is done using the set_add_adt() function
+
+    */
+
 } DATA_TYPE;
 
-/*simplify and standardize response malloc*/
-void * xalloc(ssize_t size){
-    void * ptr = malloc(size);
-    if(ptr == NULL){
-        printf("Error allocating memory\n");
-        exit(EXIT_FAILURE);
-    } 
-    return ptr;
-}
+// this will allow the user to pass in an abstract data type
+struct usr_type {
+    DATA_TYPE type; // the user can add their type to typedef at the end of the list, pass the type to the 
+    int (*type_equal)(void *, void *); // does this need to be a pointer to a function pointer? 
+};
+
 
 // llnode
 struct node {
@@ -61,15 +69,17 @@ struct obj {
 };
 
 // user manipulation
-struct obj  * Obj(void *, DATA_TYPE d); 
-void   obj_free(struct obj *);
-struct set  * set_init(void);
-void          set_free(struct set *);
-void set_add(struct set *, struct obj *);
-void set_delete(struct set *, struct obj *); // TODO
-int  set_member(struct set *, struct obj *); 
+struct obj  * Obj(void *, DATA_TYPE d);             // intializes Obj to be added to a set
+void   obj_free(struct obj *);                      // frees an Obj (only do this manually if the object isn't added to a set)
+                                                    // example: if it holds a duplicate value - objects added to a set are freed by set_delete/set_free
+struct set  * set_init(void);                       // initializes set
+void          set_free(struct set *);               // frees all items in a set
+int set_add(struct set *, struct obj *);            // allocates ll node
+int set_delete(struct set *, struct obj *);         // frees ll node
+int  set_member(struct set *, struct obj *);        // 1 if obj is a member
+int  set_add_adt(struct set *, struct usr_type *);  // used for adding user defined adt functionality 
 
-// allocation
+// internal allocation
 static struct node * node_init(void);
 static void node_free(struct node *);
 static struct obj  * obj_init(void);
@@ -82,11 +92,80 @@ static struct node * set_next(struct set *);
 // for use in set_delete() and set_member()
 static int obj_equal(struct obj *, struct obj *);
 
+// for debugging
+static void set_print(struct set *);
+
 /*for reference counting (most likely removing this)*/
 //struct set * set_get(struct set *);
 //struct set * set_put(struct set *);
 
+static void set_print(struct set *s){
+    
+    checkNull(s);
+    printf("printing the set pointers\n");
+    struct node * n;
+    int x=0;
+    for(n=set_first(s); set_done(s); n = set_next(s)){
+        printf("\t%d: from ptr %p\n", x, n);
+        x++;
+    }
+    printf("done printing the set\n");
+}
+
+int set_delete(struct set * s, struct obj * o){
+    checkNull(s);
+    checkNull(o);
+    struct node *n, *del, *last=NULL;
+    for(n = set_first(s); set_done(s); n = set_next(s)){
+        
+        // check if set contains the node to be removed
+        if(obj_equal(n->obj, o)){
+            del=n;
+
+            // going fr/1 node in set to empty set
+            if(del==s->head && del==s->tail){
+                s->head = del->next;
+                s->tail = last;
+
+                // can't set next if it's a null ptr (aka empty set)
+                if(s->tail){
+                    s->tail->next = NULL;
+                }
+
+            // node to remove is head node
+            } else if(del==s->head){
+                s->head = del->next;
+            } 
+            
+            // node to remove is tail node
+            else if(del==s->tail){
+                s->tail = last;
+
+                // can't set next if it's a null ptr (aka empty set)
+                if(s->tail){
+                    s->tail->next = NULL;
+                }
+
+            }
+            else {
+                last->next = del->next;
+            }
+            
+            // free the node
+            node_free(del);
+            s->num--;
+            return 0;
+        }
+        last = n;
+    }
+    // node isn't in the set
+    return 1;
+}
+
+// iterate the set, check for equality
 int set_member(struct set *s, struct obj *o){
+    checkNull(s);
+    checkNull(o);
     struct node * n;
     for(n = set_first(s); set_done(s); n = set_next(s)){
         if(obj_equal(n->obj, o)){
@@ -97,8 +176,9 @@ int set_member(struct set *s, struct obj *o){
 }
 
 
-// TODO create a test for this function
+// creates an obj pointer for the user
 struct obj  * Obj(void * v, DATA_TYPE t){
+    checkNull(v);
     struct obj * o = obj_init();
     o->data = (void*)v;
     o->type = t;
@@ -106,11 +186,13 @@ struct obj  * Obj(void * v, DATA_TYPE t){
 }
 
 int obj_equal(struct obj * o1, struct obj * o2){
+    checkNull(o2);
+    checkNull(o1);
     if(o1->type != o2->type){
         return 0;
     }
 
-    // some macro magic would've made this look nicer
+    // some macro magic would've made this look cleaner
     // I'm hoping that the choice of clarity is appreciated 
     // by the person reading this
     switch(o1->type){
@@ -131,7 +213,11 @@ int obj_equal(struct obj * o1, struct obj * o2){
     }
 }
 
-void set_add(struct set *s, struct obj * o) {
+int set_add(struct set *s, struct obj * o) {
+    checkNull(s);
+    checkNull(o);
+
+    if(set_member(s,o)){ return 1; } // no duplicates in a set
 
     // create node 
     struct node * new_node = node_init();
@@ -146,6 +232,7 @@ void set_add(struct set *s, struct obj * o) {
         s->tail->next = new_node;
         s->tail = new_node;
     }
+    return 0;
 }
 
 struct obj * obj_init(void){
@@ -157,7 +244,9 @@ struct obj * obj_init(void){
 }
 
 void obj_free(struct obj * o){
+    checkNull(o);
     free(o); 
+    o=NULL;
 }
 
 static struct node * node_init(void){
@@ -169,10 +258,12 @@ static struct node * node_init(void){
 }
 
 static void node_free(struct node * n){
+    checkNull(n);
     if(n->obj){
-        free(n->obj);
+        obj_free(n->obj);
     }
     free(n);
+    n=NULL;
 }
 
 struct set * set_init(void){
@@ -188,6 +279,7 @@ struct set * set_init(void){
 }
 
 void set_free(struct set * s){
+    checkNull(s);
 
     // need to iterate over the nodes in the list and free them individually - write this after set_add()
     struct node * free_node=NULL;
@@ -195,13 +287,14 @@ void set_free(struct set * s){
     // iterate and free
     for(free_node = set_first(s); set_done(s); free_node = set_next(s)){
         node_free(free_node);
-        free_node = NULL;
     }
     free(s);
+    s=NULL;
 }
 
 
 struct node * set_first(struct set *s){
+    checkNull(s);
     s->iter = s->head;
     if(s->head){
         s->iter_next = s->head->next;
@@ -211,6 +304,7 @@ struct node * set_first(struct set *s){
 
 //returns true if the list has been completely iterated
 struct node * set_done(struct set *s){
+    checkNull(s);
     return s->iter?s->iter:NULL; 
 }
 
@@ -235,7 +329,6 @@ int main(){
         
     struct node test1;
     struct node test2;
-    int int_test1 = 1;
     int int_test2 = 512;
     struct obj * obj=NULL;
     obj = (struct obj *) xalloc(sizeof(struct obj));
@@ -247,9 +340,10 @@ int main(){
     test2.next = NULL;
 
 
-    printf("test the node and obj data structures [%d==512]\n", *((int*)test1.obj->data));
-    printf("test the node and obj data structures [%d==512]\n", *((int*)test2.obj->data));
-    printf("test the node and obj data structures [%d==512]\n", *((int*)test1.next->obj->data));
+    assert((*((int*)test1.obj->data)==512),"struct obj test failed\n");
+    assert(*((int*)test2.obj->data),"struct obj test failed\n");
+    assert(*((int*)test1.next->obj->data),"struct obj test failed\n");
+    printf("basic obj struct tests passed\n");
 
     struct node *new_node1=NULL;
     struct node *new_node2=NULL;
@@ -260,9 +354,10 @@ int main(){
     new_node2->obj = obj; 
     
 
-    printf("test the node functionality: [512==%d]\n",*((int*)new_node1->next->obj->data)); 
+    assert((*(int*)new_node1->next->obj->data)==512,"test the node struct functionality: \n"); 
     free(new_node1);
     free(new_node2);
+    printf("basic node struct tests passed\n");
 
     struct node * node1 = NULL;
     struct node * node2 = NULL;
@@ -272,40 +367,49 @@ int main(){
     obj->data =&int_test2;
     node2->obj = obj;
 
-    printf("test the node_init() function: [512==%d]\n", *((int*)node2->obj->data));
-    printf("test the node_init() function: [512==%d]\n", *((int*)node1->next->obj->data));
+    assert(512==*((int*)node2->obj->data),"the node_init() function failed\n");
+    assert(512==*((int*)node1->next->obj->data),"the node_init() function failed\n");
+    printf("basic node_init() tests passed\n");
 
-    free(node1);
-    free(node2);
-    free(obj);
+    node_free(node1);
+    node_free(node2);
+
+    struct set * new_set1=NULL;
+    new_set1 = set_init();
+    set_free(new_set1);
+    printf("set_init() and set_free() passed\n");
 
     struct obj * new_obj=NULL;
     struct obj * new_obj1=NULL;
     struct obj * new_obj2=NULL;
     struct obj * new_obj3=NULL;
+    struct obj * new_obj4=NULL;
     struct set * new_set2=NULL;
-    struct node * n = NULL;
 
     int i1 = 1024;
     int i2 = 2048;
     int i3 = 4096;
-    int i4 = 4096;
+    int i4 = 8192;
+    int i5 = 8192;
 
     new_obj = obj_init();
     new_obj1 = obj_init();
     new_obj2 = obj_init();
     new_obj3 = obj_init();
+    new_obj4 = obj_init();
 
     new_obj->type = INT;
     new_obj1->type = INT;
     new_obj2->type = INT;
     new_obj3->type = INT;
+    new_obj4->type = INT;
 
     
     new_obj->data = &i1;
     new_obj1->data = &i2;
     new_obj2->data = &i3;
     new_obj3->data = &i4;
+    new_obj4->data = &i5;
 
     new_set2 = set_init();
 
@@ -314,30 +418,41 @@ int main(){
     set_add(new_set2, new_obj2);
 
     // testing set_member() function
-    if(set_member(new_set2, new_obj1)){
-        printf("set_member() working properly\n");
-    }
-
+    assert(set_member(new_set2, new_obj1),"set_member() not working properly\n");
+        
     // testing set_member() function
-    if(set_member(new_set2, new_obj3)){
-        printf("set_member() working properly\n");
-    }
+    assert(!set_member(new_set2, new_obj3) ,"set_member() not working properly\n");
+    printf("basic set_member() tests passed\n");
 
     set_add(new_set2, new_obj3);
-    printf("new_set2 successfully assigned\n");
+    assert(set_add(new_set2, new_obj4),"set_add() didn't deny adding duplicate\n");
+    obj_free(new_obj4);
+    printf("set_add() test passed: properly denied adding duplicate \n\tnote: since \
+the duplicate wasn't added to the set,\n\t it must be manually freed, hence the return code)\n");
 
-    for(n=set_first(new_set2); set_done(new_set2); n = set_next(new_set2)){
-        int * i;
-        i = (int*) n->obj->data;
-        //printf("item: [%d] from ptr %p\n", *(i), n);
-    }
+
+    set_print(new_set2);
+
+    set_delete(new_set2, new_obj3);
+    //set_print(new_set2);
+    //assert(!set_member(new_set2, new_obj3),"set_delete, failed to delete object from tail of set\n");
+
+    set_delete(new_set2, new_obj1);
+    //set_print(new_set2);
+    //assert(!set_member(new_set2, new_obj1),"set_delete, failed to delete object from middle of set\n");
+
+    set_delete(new_set2, new_obj);
+    //set_print(new_set2);
+    //assert(!set_member(new_set2, new_obj),"set_delete, failed to delete object from head of set\n");
+
+    set_delete(new_set2, new_obj2);
+    //set_print(new_set2);
+    //assert(!set_member(new_set2, new_obj2), "set_delete, failed to delete last object in the set\n");
+
+    printf("set_delete() tests passed\n");
 
     set_free(new_set2);
     
-    struct set * new_set1=NULL;
-    new_set1 = set_init();
-    set_free(new_set1);
-    printf("set_init() and set_free() passed\n");
 
     // test Obj() creation function
     int *i, *j, *k;
@@ -361,21 +476,15 @@ int main(){
     o4 = Obj(k,INT);
 
     //same types, same values
-    if(!obj_equal(o1, o2)){
-        printf("i and j should be equal\n");
-        exit(EXIT_FAILURE);
-    }
+    assert(obj_equal(o1, o2),"i and j should be equal\n");
+
     //same types, diff values
-    if(obj_equal(o1, o3)){
-        printf("i and k should not be equal\n");
-        exit(EXIT_FAILURE);
-    }
+    assert(!obj_equal(o1, o3),"i and k should not be equal\n");
+
     //different types,
-    if(obj_equal(o3,o4)){
-        printf("l and k should not be equal\n");
-        exit(EXIT_FAILURE);
-    }
-    printf("it appears that obj_equal() and Obj() are working properly\n");
+    assert(!obj_equal(o3,o4),"l and k should not be equal\n");
+
+    printf("obj_equal() and Obj() tests passed\n");
 
     free(o1);
     free(o2);
@@ -385,6 +494,7 @@ int main(){
     free(j);
     free(k);
     free(l);
+
 
     return 0;
 }
