@@ -20,3 +20,12 @@ void * xalloc(ssize_t size){
     } 
     return ptr;
 }
+
+void * xrealloc(void * p, ssize_t size){
+    void * ptr = realloc(p, size);
+    if(ptr == NULL){
+        printf("Error reallocating memory\n");
+        exit(EXIT_FAILURE);
+    } 
+    return ptr;
+}
