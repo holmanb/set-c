@@ -9,8 +9,9 @@
 * structures in any way.
 * https://www.kernel.org/doc/Documentation/kobject.txt
 * TODO:
-*   1. implement more set operations (union, intersection, difference, is_subset, is_superset)
+*   1. implement more set operations (difference, is_subset, is_superset)
 *   2. implement interface such that user may define print statement
+*   3. write test to verify intersection and union
 * 
 ********************************/
 
@@ -82,6 +83,33 @@ static void print_type(struct node * );
 /*for reference counting (most likely removing this)*/
 //struct set * set_get(struct set *);
 //struct set * set_put(struct set *);
+
+
+// user operation on two sets - must free returned set 
+struct set * set_union(struct set *s1, struct set *s2){
+    struct set * s = set_init();
+    struct node *n = node_init();
+    for(n=set_first(s1); set_done(s1); n = set_next(s1)){
+        set_add(s,n->obj->data, n->obj->type);
+    } 
+    for(n=set_first(s2); set_done(s2); n = set_next(s2)){
+        set_add(s,n->obj->data, n->obj->type);
+    } 
+    return s;
+}
+
+
+// user operation on two sets - must free returned set 
+struct set * set_intersection(struct set *s1, struct set *s2){
+    struct set * s = set_init();
+    struct node *n = node_init();
+    for(n=set_first(s1); set_done(s1); n = set_next(s1)){
+        if(set_member(s2,n->obj->data, n->obj->type)){
+            set_add(s,n->obj->data, n->obj->type);
+        }
+    } 
+    return s;
+}
 
 
 // add an abstract data type 
@@ -283,10 +311,10 @@ int set_add(struct set *s, void *d, DATA_TYPE t) {
     checkNull(s);
     checkNull(d);
     checkNull(t);
+
+    if(set_member(s, d, t)){ return 1; } // no duplicates in a set
+
     struct obj * o = Obj(d,t);
-
-    if(set_member(s, d, t)){ obj_free(o); return 1; } // no duplicates in a set
-
     // create node 
     struct node * new_node = node_init();
     new_node->obj = o;

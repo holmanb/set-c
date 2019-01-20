@@ -64,6 +64,8 @@ int set_length(struct set * s);
 
 // check if value is in set already
 int set_member(struct set *s, void *d, DATA_TYPE t);
+struct set * set_union(struct set *s1, struct set *s2);
+struct set * set_intersection(struct set *s1, struct set *s2);
 
 // the poor man's debugger
 void set_print(struct set *s);
