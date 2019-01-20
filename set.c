@@ -1,58 +1,58 @@
+/*******************************
+* Title: Obj-C
+* Author: Brett Holman
+* Dates: December 2018-January 2019
+* Summary:
+* Presents a collection of functions for basic manipulating of a set data structure.
+* Note:  This project drew some inspiration initially from some documentation of kobjects, ksets, and ktypes
+* by Greg Kroah-Hartman (based on an artical by Jon Corbet). This doesn't intend to relate to kernel data 
+* structures in any way.
+* https://www.kernel.org/doc/Documentation/kobject.txt
+* 
+********************************/
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "util.h"
+#include "set.h"
 
 #define COMPILE_TEST 
 
-// This enum is used to define the object type so that 
-// a single set can have multiple types in it AND have a 
-// coherent way to check equality (check type, then if they match, 
-// have a mega-switching function to check and cast appropriately
-// if all goes well, we might even add support for ADTs with user-defined enum values 
-// (and a method for registering a compare function for the user defined values) 
+//// This enum is used to define the object type so that 
+//// a single set can have multiple types in it AND have a 
+//// coherent way to check equality (check type, then if they match, 
+//// have a mega-switching function to check and cast appropriately
+//// if all goes well, we might even add support for ADTs with user-defined enum values 
+//// (and a method for registering a compare function for the user defined values) 
+//
+//typedef enum { // TODO: create function to pass in function type and enum for it 
+//    CHAR,
+//    UCHAR,
+//    SHORT,
+//    USHORT,
+//    INT,
+//    UINT,
+//    LONG,
+//    ULONG,
+//    LONG_LONG,
+//    ULONG_LONG,
+//    FLOAT,
+//    DOUBLE,
+//    UDOUBLE,
+//    LONG_DOUBLE,
+//    /*
+//    #####################################
+//    # DO NOT DELETE FIELDS OF THIS ENUM #
+//    #####################################
+//
+//    User may add to this enum for an abstract data type. 
+//    The user must create a function for comparing equality of the data type. 
+//    This is done using the set_add_adt() function
+//    */
+//    USER_DEFINED,
+//} DATA_TYPE;
 
-typedef enum { // TODO: create function to pass in function type and enum for it 
-    CHAR,
-    UCHAR,
-    SHORT,
-    USHORT,
-    INT,
-    UINT,
-    LONG,
-    ULONG,
-    LONG_LONG,
-    ULONG_LONG,
-    FLOAT,
-    DOUBLE,
-    UDOUBLE,
-    LONG_DOUBLE,
-    /*
-    #####################################
-    # DO NOT DELETE FIELDS OF THIS ENUM #
-    #####################################
-
-    User may add to this enum for an abstract data type. 
-    The user must create a function for comparing equality of the data type. 
-    This is done using the set_add_adt() function
-    */
-    USER_DEFINED,
-} DATA_TYPE;
-
-struct usr_defined_custom{
-   int i;
-   char j;
-};
-
-
-
-// this will allow the user to pass in an abstract data type
-struct usr_type {
-    DATA_TYPE type; // the user can add their type to typedef at the end of the list, pass the type to the 
-    union {
-        int (*type_equal)(void *, void *); 
-        int (*type_equal_test)(struct usr_defined_custom*, struct usr_defined_custom *);
-    };
-};
 
 
 // llnode
@@ -61,17 +61,6 @@ struct node {
     struct node *next;
 };
 
-// holds state information of the set
-struct set {
-    struct node *head;
-    struct node *tail;
-    struct node *iter;
-    struct node *iter_next; // required to free the sll
-    unsigned int num;
-    DATA_TYPE * dt;
-    struct usr_type *custom_types;
-    unsigned int num_adts;
-};
 
 // store data && keep track of the number of references
 struct obj {
@@ -81,23 +70,13 @@ struct obj {
 };
 
 
-//TODO: remove the Obj from the user domain... it is unnecessary - just let the user pass whatever they want to set_add
-// user manipulation
-struct obj  * Obj(void *, DATA_TYPE d);             // intializes Obj to be added to a set
-void   obj_free(struct obj *);                      // frees an Obj (only do this manually if the object isn't added to a set)
-                                                    // example: if it holds a duplicate value - objects added to a set are freed by set_delete/set_free
-struct set  * set_init(void);                       // initializes set
-void          set_free(struct set *);               // frees all items in a set
-int set_add(struct set *, struct obj *);            // allocates ll node
-int set_delete(struct set *, struct obj *);         // frees ll node
-int  set_member(struct set *, struct obj *);        // 1 if obj is a member
-int  set_add_adt(struct set *, struct usr_type *);  // used for adding user defined adt functionality 
-int  set_length(struct set *);
 
 // internal allocation
 static struct node * node_init(void);
 static void node_free(struct node *);
 static struct obj  * obj_init(void);
+static struct obj  * Obj(void *, DATA_TYPE d);             // intializes Obj to be added to a set
+static void   obj_free(struct obj *);                      // frees an Obj (only do this manually if the object isn't added to a set)
 
 // first-done-next idiom is used for iterating the set w/a for loop
 static struct node * set_first(struct set *);
@@ -110,14 +89,18 @@ static int obj_equal_adt(struct set * s, struct obj *, struct obj *);
 
 // for debugging
 static void set_print(struct set *);
+static void print_type(struct node * );
 
 /*for reference counting (most likely removing this)*/
 //struct set * set_get(struct set *);
 //struct set * set_put(struct set *);
 
-int  set_add_adt(struct set * s, struct usr_type *ut){
+int  set_add_adt(struct set * s, ptr_equality is_equal, DATA_TYPE dt){
     
     // increase size of adt pointer 
+    struct usr_type * ut = xalloc(sizeof(struct usr_type));
+    ut->type = dt;
+    ut->type_equal = is_equal;
     s->num_adts += 1;
     s->custom_types = xrealloc(s->custom_types, sizeof(struct usr_type) * (s->num_adts));
     s->custom_types[s->num_adts-1] = *ut;
@@ -126,6 +109,32 @@ int  set_add_adt(struct set * s, struct usr_type *ut){
 
 int  set_length(struct set *s){ return s->num; }
 
+static void print_type(struct node * n){
+
+    if(!n->obj->data){
+        printf("no data found while printing object data\n");
+        return;
+    }
+    switch(n->obj->type){
+        case CHAR:          printf("char %c\n",(*(char *)n->obj->data)); break;
+        case UCHAR:         printf("unsigned char %c\n",(*(unsigned char *)n->obj->data)); break;
+        case SHORT:         printf("short %d\n",(*(short *)n->obj->data)); break;
+        case USHORT:        printf("unsigned short %u\n",(*(unsigned short *)n->obj->data)); break;
+        case INT:           printf("int %d\n",(*(int *)n->obj->data)); break;
+        case UINT:          printf("unsigned int %u\n",(*(unsigned int*)n->obj->data)); break;
+        case LONG:          printf("long %ld\n",(*(long *)n->obj->data)); break;
+        case LONG_LONG:     printf("long long %lld\n",(*(long long *)n->obj->data)); break;
+        case ULONG_LONG:    printf("unsigned long long %lld\n",(*(unsigned long long*)n->obj->data)); break;
+        case ULONG:         printf("unsigned long %ld\n",(*(unsigned long *)n->obj->data)); break;
+        case FLOAT:         printf("float %f\n",(*(float *)n->obj->data)); break;
+        case DOUBLE:        printf("double %f\n",(*(double *)n->obj->data)); break;
+        case LONG_DOUBLE:   printf("long double %Lf\n",(*(long double *)n->obj->data)); break;
+        default: 
+        exit(EXIT_FAILURE);
+    }
+
+}
+
 static void set_print(struct set *s){
     
     checkNull(s);
@@ -133,15 +142,17 @@ static void set_print(struct set *s){
     struct node * n;
     int x=0;
     for(n=set_first(s); set_done(s); n = set_next(s)){
-        printf("\t%d: from ptr %p\n", x, n);
+        printf("\t%d: from ptr %p: value=", x, n);
+        print_type(n);
         x++;
     }
     printf("done printing the set\n");
 }
 
-int set_delete(struct set * s, struct obj * o){
+int set_delete(struct set * s, void * d, DATA_TYPE t){
     checkNull(s);
-    checkNull(o);
+    checkNull(d);
+    struct obj * o = Obj(d,t);
     struct node *n, *del, *last=NULL;
     for(n = set_first(s); set_done(s); n = set_next(s)){
         
@@ -181,24 +192,37 @@ int set_delete(struct set * s, struct obj * o){
             // free the node
             node_free(del);
             s->num--;
+            obj_free(o);
             return 0;
         }
         last = n;
     }
     // node isn't in the set
+    obj_free(o);
     return 1;
 }
 
 // iterate the set, check for equality
-int set_member(struct set *s, struct obj *o){
+// takes the set, the raw data, and its type
+int set_member(struct set *s, void *d, DATA_TYPE t){
     checkNull(s);
-    checkNull(o);
+    checkNull(d);
+    checkNull(t);
+    struct obj * o = Obj(d,t);
     struct node * n;
     for(n = set_first(s); set_done(s); n = set_next(s)){
         if(obj_equal_adt(s,n->obj, o)){
-            return 1;    
+            if(t == INT){
+                printf("item %d is a member\n", *((int *)d));
+            }
+            obj_free(o);
+            return 1;
         }
     }
+    if(t == INT){
+        printf("item %d is not a member\n", *((int *)d));
+    }
+    obj_free(o);
     return 0;
 }
 
@@ -221,7 +245,7 @@ int obj_equal(struct obj * o1, struct obj * o2){
 
     // some macro magic would've made this look cleaner
     // I'm hoping that the choice of clarity is appreciated 
-    // by the person reading this
+    // by the person reading this...
     switch(o1->type){
         case CHAR:          return (*(char *)o1->data == *(char *)o2->data);
         case UCHAR:         return (*(unsigned char *)o1->data == *(char *) o2->data);
@@ -246,13 +270,14 @@ int obj_equal_adt(struct set * s, struct obj * o1, struct obj * o2){
     checkNull(s);
     checkNull(o2);
     checkNull(o1);
+    checkNull(o1->data);
+    checkNull(o2->data);
+    checkNull(o2->type);
+    checkNull(o1->type);
     if(o1->type != o2->type){
         return 0;
     }
 
-    // some macro magic would've made this look cleaner
-    // I'm hoping that the choice of clarity is appreciated 
-    // by the person reading this
     switch(o1->type){
         case CHAR:          
         case UCHAR:         
@@ -280,11 +305,14 @@ int obj_equal_adt(struct set * s, struct obj * o1, struct obj * o2){
     }
 }
 
-int set_add(struct set *s, struct obj * o) {
+// takes the set, the raw data, and its type
+int set_add(struct set *s, void *d, DATA_TYPE t) {
     checkNull(s);
-    checkNull(o);
+    checkNull(d);
+    checkNull(t);
+    struct obj * o = Obj(d,t);
 
-    if(set_member(s,o)){ return 1; } // no duplicates in a set
+    if(set_member(s, d, t)){ obj_free(o); return 1; } // no duplicates in a set
 
     // create node 
     struct node * new_node = node_init();
@@ -360,6 +388,9 @@ void set_free(struct set * s){
     for(free_node = set_first(s); set_done(s); free_node = set_next(s)){
         node_free(free_node);
     }
+    //for(int i=0; i < (s->num_adts); i++){
+    //    free(s->custom_types[i].type_equal);
+    //}
     free(s->custom_types);
     free(s);
     s=NULL;
@@ -392,12 +423,12 @@ struct node * set_next(struct set *s){
 
 #ifdef COMPILE_TEST 
 
-/* 
-main()
-basic testing of the functionality  
-this isn't a test framework, just some basic sanity checking to aid in development
-*/
-
+///* 
+//main()
+//basic testing of the functionality  
+//this isn't a test framework, just some basic sanity checking to aid in development
+//*/
+//
 int main(){
         
     struct node test1;
@@ -452,54 +483,42 @@ int main(){
     set_free(new_set1);
     printf("set_init() and set_free() passed\n");
 
-    struct obj * new_obj=NULL;
-    struct obj * new_obj1=NULL;
-    struct obj * new_obj2=NULL;
-    struct obj * new_obj3=NULL;
-    struct obj * new_obj4=NULL;
     struct set * new_set2=NULL;
 
-    int i1 = 1024;
-    int i2 = 2048;
-    int i3 = 4096;
-    int i4 = 8192;
-    int i5 = 8192;
-
-    new_obj = obj_init();
-    new_obj1 = obj_init();
-    new_obj2 = obj_init();
-    new_obj3 = obj_init();
-    new_obj4 = obj_init();
-
-    new_obj->type = INT;
-    new_obj1->type = INT;
-    new_obj2->type = INT;
-    new_obj3->type = INT;
-    new_obj4->type = INT;
-
+    int *i1 = xalloc(sizeof(int)); 
+    int *i2 = xalloc(sizeof(int)); 
+    int *i3 = xalloc(sizeof(int)); 
+    int *i4 = xalloc(sizeof(int)); 
+    int *i5 = xalloc(sizeof(int)); 
     
-    new_obj->data = &i1;
-    new_obj1->data = &i2;
-    new_obj2->data = &i3;
-    new_obj3->data = &i4;
-    new_obj4->data = &i5;
+    *i1 = 1024;
+    *i2 = 2048;
+    *i3 = 4096;
+    *i4 = 8192;
+    *i5 = 8192;
+
 
     new_set2 = set_init();
 
-    set_add(new_set2, new_obj);
-    set_add(new_set2, new_obj1);
-    set_add(new_set2, new_obj2);
+    set_add(new_set2, i1, INT);
+    set_add(new_set2, i2, INT);
+    set_add(new_set2, i3, INT);
 
     // testing set_member() function
-    assert(set_member(new_set2, new_obj1),"set_member() not working properly\n");
+    printf("testing if i3 (%d) is a member: \n\t", *i3);
+    assert(set_member(new_set2, i3, INT),"set_member() not working properly [1]\n");
         
     // testing set_member() function
-    assert(!set_member(new_set2, new_obj3) ,"set_member() not working properly\n");
+    assert(!set_member(new_set2, i4, INT), "set_member() not working properly [2]\n");
     printf("basic set_member() tests passed\n");
 
-    set_add(new_set2, new_obj3);
-    assert(set_add(new_set2, new_obj4),"set_add() didn't deny adding duplicate\n");
-    obj_free(new_obj4);
+    // i4 is equal to i5, so this should fail
+    set_add(new_set2, i4, INT);
+    set_print(new_set2);
+    int y = set_add(new_set2, i5, INT);
+    set_print(new_set2);
+    assert(y,"set_add() didn't deny adding duplicate\n");
+
     printf("set_add() test passed: properly denied adding duplicate \n\tnote: since \
 the duplicate wasn't added to the set,\n\t it must be manually freed, hence the return code)\n");
 
@@ -507,21 +526,26 @@ the duplicate wasn't added to the set,\n\t it must be manually freed, hence the 
     
     set_print(new_set2);
     
-    set_delete(new_set2, new_obj3);
+    set_delete(new_set2, i4, INT);
     assert(n-1==(set_length(new_set2)), "set_delete() or set_length() is broken()\n");
 
-    set_delete(new_set2, new_obj1);
+    set_delete(new_set2, i2, INT);
     assert(n-2==(set_length(new_set2)), "set_delete() or set_length() is broken()\n");
 
-    set_delete(new_set2, new_obj);
+    set_delete(new_set2, i1, INT);
     assert(n-3==(set_length(new_set2)), "set_delete() or set_length() is broken()\n");
 
-    set_delete(new_set2, new_obj2);
+    set_delete(new_set2, i3, INT);
     assert(n-4==(set_length(new_set2)), "set_delete() or set_length() is broken()\n");
 
     printf("set_delete() and set_length() tests passed\n");
 
     set_free(new_set2);
+    free(i1);
+    free(i2);
+    free(i3);
+    free(i4);
+    free(i5);
     
 
     // test Obj() creation function
@@ -572,9 +596,10 @@ the duplicate wasn't added to the set,\n\t it must be manually freed, hence the 
        char j;
     };
     
-    struct usr_defined_custom *c1,*c2;
+    struct usr_defined_custom *c1,*c2, *c3;
     c1 = xalloc(sizeof(struct usr_defined_custom));
     c2 = xalloc(sizeof(struct usr_defined_custom));
+    c3 = xalloc(sizeof(struct usr_defined_custom));
 
     c1->i=0;
     c1->j='c';
@@ -582,10 +607,8 @@ the duplicate wasn't added to the set,\n\t it must be manually freed, hence the 
     c2->i=0;
     c2->j='c';
 
-    struct obj *O1, *O2; 
-    O1 = Obj(c1,USER_DEFINED);
-    O2 = Obj(c2,USER_DEFINED);
-
+    c3->i=0;
+    c3->j='d';
 
     // checks to see if the first element's integer is bigger
     int test_equality_function(void * ut1, void * ut2){
@@ -595,24 +618,28 @@ the duplicate wasn't added to the set,\n\t it must be manually freed, hence the 
         return 1;
     }
 
-
     struct usr_type * ut0 = xalloc(sizeof(struct usr_type));
     ut0->type_equal = &test_equality_function;
 
 
     ut0->type = USER_DEFINED;
-    set_add_adt(s,ut0); 
+    
+    set_add_adt(s,&test_equality_function, USER_DEFINED); 
 
-    printf("there are currently %d items in set\n", set_length(s));
-    set_add(s, O1);
-    printf("there are currently %d items in set\n", set_length(s));
-    set_add(s, O2);
-    printf("there are currently %d items in set\n", set_length(s));
+    assert(set_length(s) == 0, "there shouldn't be any items in the set yet\n");
+    set_add(s, c1, USER_DEFINED);
+    assert(set_length(s) == 1, "there should only be one item in the set \n");
+    set_add(s, c2, USER_DEFINED);
+    assert(set_length(s) == 1, "there should only be one item in the set \n");
+    set_add(s, c3, USER_DEFINED);
+    assert(set_length(s) == 2, "there should only be two items in the set \n");
+    printf("abstract data type support tests passed\n");
+    
 
     free(c1);
     free(c2);
-    free(ut0);
-    free(O2);
+    free(c3);
+//    free(ut0);
     
     set_free(s);
     return 0;
