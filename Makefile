@@ -1,7 +1,7 @@
 MAIN=set
 EXEC=a.out
 $(MAIN).o: $(MAIN).c
-	gcc $(MAIN).c -o $(EXEC) -Wall -Wcast-align
+	gcc -g $(MAIN).c -o $(EXEC) -Wall -Wcast-align
 
 test:
 	./$(EXEC)

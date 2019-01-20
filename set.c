@@ -19,42 +19,6 @@
 
 #define COMPILE_TEST 
 
-//// This enum is used to define the object type so that 
-//// a single set can have multiple types in it AND have a 
-//// coherent way to check equality (check type, then if they match, 
-//// have a mega-switching function to check and cast appropriately
-//// if all goes well, we might even add support for ADTs with user-defined enum values 
-//// (and a method for registering a compare function for the user defined values) 
-//
-//typedef enum { // TODO: create function to pass in function type and enum for it 
-//    CHAR,
-//    UCHAR,
-//    SHORT,
-//    USHORT,
-//    INT,
-//    UINT,
-//    LONG,
-//    ULONG,
-//    LONG_LONG,
-//    ULONG_LONG,
-//    FLOAT,
-//    DOUBLE,
-//    UDOUBLE,
-//    LONG_DOUBLE,
-//    /*
-//    #####################################
-//    # DO NOT DELETE FIELDS OF THIS ENUM #
-//    #####################################
-//
-//    User may add to this enum for an abstract data type. 
-//    The user must create a function for comparing equality of the data type. 
-//    This is done using the set_add_adt() function
-//    */
-//    USER_DEFINED,
-//} DATA_TYPE;
-
-
-
 // llnode
 struct node {
     struct obj *obj;
@@ -66,10 +30,7 @@ struct node {
 struct obj {
     void *data;
     DATA_TYPE type;
-    unsigned int ref;
 };
-
-
 
 // internal allocation
 static struct node * node_init(void);
@@ -104,6 +65,7 @@ int  set_add_adt(struct set * s, ptr_equality is_equal, DATA_TYPE dt){
     s->num_adts += 1;
     s->custom_types = xrealloc(s->custom_types, sizeof(struct usr_type) * (s->num_adts));
     s->custom_types[s->num_adts-1] = *ut;
+    free(ut);
     return 0;
 }
 
@@ -334,7 +296,6 @@ struct obj * obj_init(void){
     struct obj * o = NULL;
     o = (struct obj *) xalloc(sizeof(struct obj));
     o->data = NULL;
-    o->ref = 0;
     return o;
 }
 
@@ -388,9 +349,6 @@ void set_free(struct set * s){
     for(free_node = set_first(s); set_done(s); free_node = set_next(s)){
         node_free(free_node);
     }
-    //for(int i=0; i < (s->num_adts); i++){
-    //    free(s->custom_types[i].type_equal);
-    //}
     free(s->custom_types);
     free(s);
     s=NULL;
@@ -618,11 +576,6 @@ the duplicate wasn't added to the set,\n\t it must be manually freed, hence the 
         return 1;
     }
 
-    struct usr_type * ut0 = xalloc(sizeof(struct usr_type));
-    ut0->type_equal = &test_equality_function;
-
-
-    ut0->type = USER_DEFINED;
     
     set_add_adt(s,&test_equality_function, USER_DEFINED); 
 
@@ -639,7 +592,6 @@ the duplicate wasn't added to the set,\n\t it must be manually freed, hence the 
     free(c1);
     free(c2);
     free(c3);
-//    free(ut0);
     
     set_free(s);
     return 0;
