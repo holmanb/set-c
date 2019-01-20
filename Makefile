@@ -1,16 +1,24 @@
-MAIN=set
-EXEC=a.out
-$(MAIN).o: $(MAIN).c
-	gcc -g $(MAIN).c -o $(EXEC) -Wall -Wcast-align
+CC = gcc
+CC_FLAGS = -g -Wall
 
-test:
-	./$(EXEC)
+EXEC=test
+SOURCES = $(wildcard *.c)
+OBJECTS = $(SOURCES:.c=.o)
+
+%.o: %.c
+	$(CC) $(CC_FLAGS) -c $< -o $@
+
+$(EXEC): $(OBJECTS)
+	$(CC) $(OBJECTS) -o $(EXEC)
+
+
 
 clean:
-	-rm $(EXEC)
+	-rm -f $(EXEC) $(OBJECTS)
 
 check:
-	valgrind --leak-check=yes --track-origins=yes ./a.out
+	valgrind --leak-check=yes --track-origins=yes ./$(EXEC)
 
 gdb:
 	gdb $(EXEC)
+

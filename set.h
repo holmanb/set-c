@@ -1,12 +1,14 @@
+//#ifndef SET_H
+//#define SET_H
 
-//// This enum is used to define the object type so that 
-//// a single set can have multiple types in it AND have a 
-//// coherent way to check equality (check type, then if they match, 
-//// have a mega-switching function to check and cast appropriately
-//// if all goes well, we might even add support for ADTs with user-defined enum values 
-//// (and a method for registering a compare function for the user defined values) 
-//
-typedef enum { // TODO: create function to pass in function type and enum for it 
+// forward declare to hide implementation
+struct set;
+
+
+// This enum is used to define the object type so that 
+// a single set can have multiple types in it AND support
+// abstract data types in a simple manner
+typedef enum {
     CHAR,
     UCHAR,
     SHORT,
@@ -22,35 +24,48 @@ typedef enum { // TODO: create function to pass in function type and enum for it
     UDOUBLE,
     LONG_DOUBLE,
     /*
-    #####################################
-    # DO NOT DELETE FIELDS OF THIS ENUM #
-    #####################################
+    ###########################################
+    # DO NOT DELETE ABOVE FIELDS OF THIS ENUM #
+    ###########################################
 
-    User may add to this enum for an abstract data type. 
+    User may add to this enum for a user defined abstract data type. 
     The user must create a function for comparing equality of the data type. 
     This is done using the set_add_adt() function
     */
-    USER_DEFINED,
+    USER_DEFINED,  // see example code in test.c
 } DATA_TYPE;
 
-// holds state information of the set
-struct set {
-    struct node *head;
-    struct node *tail;
-    struct node *iter;
-    struct node *iter_next; // required to free the sll
-    unsigned int num;
-    DATA_TYPE * dt;
-    struct usr_type *custom_types;
-    unsigned int num_adts;
-};
 
+// abstract data types are supported with a
+// user defined equality function passed along 
+// with a custom DATA_TYPE to set_add_adt()
+
+// equality function for user defined data type
 typedef int (*ptr_equality)(void*, void*);
 
-// this will allow the user to pass in an abstract data type
-struct usr_type {
-    DATA_TYPE type; // the user can add their type to typedef at the end of the list, pass the type to the 
-    union {
-        ptr_equality type_equal;
-    };
-};
+
+// add user defined data types via this function
+int  set_add_adt(struct set * s, ptr_equality is_equal, DATA_TYPE dt);  // note: this may change to support more than just an equality function
+
+
+// malloc and free
+struct set * set_init(void);
+void set_free(struct set * s);
+
+
+// create and destroy values 
+int set_add(struct set *s, void *d, DATA_TYPE t);
+int set_delete(struct set * s, void * d, DATA_TYPE t);
+
+
+// get length of set
+int set_length(struct set * s);
+
+
+// check if value is in set already
+int set_member(struct set *s, void *d, DATA_TYPE t);
+
+// the poor man's debugger
+void set_print(struct set *s);
+
+//#endif

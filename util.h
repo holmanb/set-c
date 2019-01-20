@@ -1,3 +1,6 @@
+#ifndef UTIL_H
+#define UTIL_H
+
 
 /// best to fail early and often rather than 
 /// trying to debug/fix/reproduce bugs that result from mem errors
@@ -9,23 +12,9 @@
 
 #define die(msg) printf(msg);exit(EXIT_FAILURE)
 
+void * xalloc(size_t size);
+void * xrealloc(void * p, size_t size);
 
 
-/*simplify and standardize response malloc*/
-void * xalloc(ssize_t size){
-    void * ptr = malloc(size);
-    if(ptr == NULL){
-        printf("Error allocating memory\n");
-        exit(EXIT_FAILURE);
-    } 
-    return ptr;
-}
 
-void * xrealloc(void * p, ssize_t size){
-    void * ptr = realloc(p, size);
-    if(ptr == NULL){
-        printf("Error reallocating memory\n");
-        exit(EXIT_FAILURE);
-    } 
-    return ptr;
-}
+#endif
