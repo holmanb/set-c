@@ -8,6 +8,9 @@
 * by Greg Kroah-Hartman (based on an artical by Jon Corbet). This doesn't intend to relate to kernel data 
 * structures in any way.
 * https://www.kernel.org/doc/Documentation/kobject.txt
+* TODO:
+*   1. implement more set operations (union, intersection, difference, is_subset, is_superset)
+*   2. implement interface such that user may define print statement
 * 
 ********************************/
 
@@ -83,6 +86,9 @@ static void print_type(struct node * );
 
 // add an abstract data type 
 int  set_add_adt(struct set * s, ptr_equality is_equal, DATA_TYPE dt){
+    checkNull(s);
+    checkNull(is_equal);
+    checkNull(dt);
     
     // increase size of adt pointer 
     struct usr_type * ut = xalloc(sizeof(struct usr_type));
@@ -97,12 +103,15 @@ int  set_add_adt(struct set * s, ptr_equality is_equal, DATA_TYPE dt){
 
 
 // get the length of a set
-int  set_length(struct set *s){ return s->num; }
+int  set_length(struct set *s){ 
+    checkNull(s);
+    return s->num; 
+}
 
 
 // print value of non-adts (should this support adts in the future?)
 static void print_type(struct node * n){
-
+    checkNull(n);
     if(!n->obj->data){
         printf("no data found while printing object data\n");
         return;
@@ -148,6 +157,7 @@ void set_print(struct set *s){
 int set_delete(struct set * s, void * d, DATA_TYPE t){
     checkNull(s);
     checkNull(d);
+    checkNull(t);
     struct obj * o = Obj(d,t);
     struct node *n, *del, *last=NULL;
     for(n = set_first(s); set_done(s); n = set_next(s)){
@@ -220,6 +230,7 @@ int set_member(struct set *s, void *d, DATA_TYPE t){
 // creates an obj pointer 
 struct obj  * Obj(void * v, DATA_TYPE t){
     checkNull(v);
+    checkNull(t);
     struct obj * o = obj_init();
     o->data = (void*)v;
     o->type = t;
@@ -387,6 +398,7 @@ struct node * set_done(struct set *s){
 
 // return next item in set (for looping)
 struct node * set_next(struct set *s){
+    checkNull(s);
     s->iter = s->iter_next;
     if(s->iter_next)
         s->iter_next = s->iter_next->next;
