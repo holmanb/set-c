@@ -74,6 +74,9 @@ struct set * set_intersection(struct set *s1, struct set *s2);
 // returns a set that is the symetric difference of the two arguments
 struct set * set_symetric_diff(struct set *s1, struct set *s2);
 
+// returns a set that is the complement of A given B (A-B)
+struct set * set_complement(struct set *A, struct set *B);
+
 // the poor man's debugger
 void set_print(struct set *s);
 

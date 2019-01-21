@@ -84,6 +84,18 @@ static void print_type(struct node * );
 //struct set * set_get(struct set *);
 //struct set * set_put(struct set *);
 
+// user operation on two sets - must free returned set
+struct set * set_complement(struct set *A, struct set *B){
+    struct set *s = set_init();
+    struct node *n;
+    for(n=set_first(A); set_done(A); n = set_next(A)){
+        if(!set_member(B, n->obj->data, n->obj->type)){
+            set_add(s,n->obj->data, n->obj->type);
+        }
+    }
+    return s;
+}
+
 
 // user operation on two sets - must free returned set
 struct set * set_symetric_diff(struct set *s1, struct set *s2){
@@ -102,6 +114,8 @@ struct set * set_symetric_diff(struct set *s1, struct set *s2){
     return s;
 
 }
+
+
 // user operation on two sets - must free returned set 
 struct set * set_union(struct set *s1, struct set *s2){
     struct set *s = set_init();
@@ -157,6 +171,8 @@ int  set_length(struct set *s){
 // print value of non-adts (should this support adts in the future?)
 static void print_type(struct node * n){
     checkNull(n);
+    checkNull(n->obj);
+    checkNull(n->obj->data);
     if(!n->obj->data){
         printf("no data found while printing object data\n");
         return;
@@ -176,7 +192,8 @@ static void print_type(struct node * n){
         case DOUBLE:        printf("double %f\n",(*(double *)n->obj->data)); break;
         case LONG_DOUBLE:   printf("long double %Lf\n",(*(long double *)n->obj->data)); break;
         default: 
-        exit(EXIT_FAILURE);
+        // need to add support for printing custom type
+        printf("custom type at address %p\n",n->obj->data);
     }
 
 }
@@ -190,7 +207,7 @@ void set_print(struct set *s){
     struct node * n;
     int x=0;
     for(n=set_first(s); set_done(s); n = set_next(s)){
-        printf("\t%d: from ptr %p: value=", x, n);
+        printf("\t[%d]: from ptr %p: value=", x, n);
         print_type(n);
         x++;
     }

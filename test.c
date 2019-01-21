@@ -151,15 +151,18 @@ int main(){
 
     result = set_symetric_diff(ms1, ms2);
     assert((set_length(result) == 2), "set symmetric difference failed, set should have length=2\n");
-    assert(set_member(result,&a,INT), "set symmetric difference failed, set should have INT value=3");
+    assert(set_member(result,&a,INT), "set symmetric difference failed, set should have INT value=1");
     assert(set_member(result,&c,INT), "set symmetric difference failed, set should have INT value=3");
     set_free(result);
     
-    printf("union, symmetric differece, and intersection set operation tests passed\n");
+    result = set_complement(ms1, ms2);
+    assert((set_length(result) == 1), "set complement failed, set should have length=1\n");
+    assert(set_member(result,&a,INT), "set complement failed, set should have INT value=1");
+    set_free(result);
+    printf("union, complement, symmetric differece, and intersection set operation tests passed\n");
 
     set_free(ms1);
     set_free(ms2);
-    set_free(result);
     return 0;
 }
 
