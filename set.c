@@ -85,6 +85,23 @@ static void print_type(struct node * );
 //struct set * set_put(struct set *);
 
 
+// user operation on two sets - must free returned set
+struct set * set_symetric_diff(struct set *s1, struct set *s2){
+    struct set *s = set_init();
+    struct node *n;
+    for(n=set_first(s1); set_done(s1); n = set_next(s1)){
+        if(!set_member(s2, n->obj->data, n->obj->type)){
+            set_add(s,n->obj->data, n->obj->type);
+        }
+    }
+    for(n=set_first(s2); set_done(s2); n = set_next(s2)){
+        if(!set_member(s1, n->obj->data, n->obj->type)){
+            set_add(s,n->obj->data, n->obj->type);
+        }
+    }
+    return s;
+
+}
 // user operation on two sets - must free returned set 
 struct set * set_union(struct set *s1, struct set *s2){
     struct set *s = set_init();

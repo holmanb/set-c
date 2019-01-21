@@ -53,7 +53,7 @@ struct set * set_init(void);
 void set_free(struct set * s);
 
 
-// create and destroy values 
+// create and destroy values in set
 int set_add(struct set *s, void *d, DATA_TYPE t);
 int set_delete(struct set * s, void * d, DATA_TYPE t);
 
@@ -64,8 +64,15 @@ int set_length(struct set * s);
 
 // check if value is in set already
 int set_member(struct set *s, void *d, DATA_TYPE t);
+
+// returns a set that is the union of the two arguments
 struct set * set_union(struct set *s1, struct set *s2);
+
+// returns a set that is the intersection of the two arguments
 struct set * set_intersection(struct set *s1, struct set *s2);
+
+// returns a set that is the symetric difference of the two arguments
+struct set * set_symetric_diff(struct set *s1, struct set *s2);
 
 // the poor man's debugger
 void set_print(struct set *s);
