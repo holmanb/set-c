@@ -120,8 +120,39 @@ int main(){
     free(c1);
     free(c2);
     free(c3);
-    
     set_free(s);
+
+    // testing intersection and union
+    struct set * ms1 = set_init();
+    struct set * ms2 = set_init();
+    struct set * result;
+    int a,b,c;
+    a=1;
+    b=2;
+    c=3;
+    set_add(ms1, &a, INT);
+    set_add(ms1, &b, INT);
+    set_add(ms2, &c, INT);
+    set_add(ms2, &b, INT);
+    result = set_union(ms1, ms2);
+
+    // test union
+    assert((set_length(result) == 3), "set union failed, set should have length=3\n");
+    assert(set_member(result,&a,INT), "set union failed, set should have INT value=1");
+    assert(set_member(result,&b,INT), "set union failed, set should have INT value=2");
+    assert(set_member(result,&c,INT), "set union failed, set should have INT value=3");
+    set_free(result);
+
+    // test intersection
+    result = set_intersection(ms1, ms2);
+    assert((set_length(result) == 1), "set intersection failed, set should have length=3\n");
+    assert(set_member(result,&b,INT), "set intersection failed, set should have INT value=3");
+
+    printf("union and intersection set operation tests passed\n");
+
+    set_free(ms1);
+    set_free(ms2);
+    set_free(result);
     return 0;
 }
 

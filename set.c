@@ -87,8 +87,8 @@ static void print_type(struct node * );
 
 // user operation on two sets - must free returned set 
 struct set * set_union(struct set *s1, struct set *s2){
-    struct set * s = set_init();
-    struct node *n = node_init();
+    struct set *s = set_init();
+    struct node *n;
     for(n=set_first(s1); set_done(s1); n = set_next(s1)){
         set_add(s,n->obj->data, n->obj->type);
     } 
@@ -102,7 +102,7 @@ struct set * set_union(struct set *s1, struct set *s2){
 // user operation on two sets - must free returned set 
 struct set * set_intersection(struct set *s1, struct set *s2){
     struct set * s = set_init();
-    struct node *n = node_init();
+    struct node *n;
     for(n=set_first(s1); set_done(s1); n = set_next(s1)){
         if(set_member(s2,n->obj->data, n->obj->type)){
             set_add(s,n->obj->data, n->obj->type);
@@ -314,8 +314,8 @@ int set_add(struct set *s, void *d, DATA_TYPE t) {
 
     if(set_member(s, d, t)){ return 1; } // no duplicates in a set
 
-    struct obj * o = Obj(d,t);
     // create node 
+    struct obj * o = Obj(d,t);
     struct node * new_node = node_init();
     new_node->obj = o;
     s->num += 1;
