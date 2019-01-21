@@ -77,6 +77,16 @@ struct set * set_symetric_diff(struct set *s1, struct set *s2);
 // returns a set that is the complement of A given B (A-B)
 struct set * set_complement(struct set *A, struct set *B);
 
+// iterate a set: first-done-next idiom is used 
+// example:
+//    struct node *n;
+//    for(n=set_first(s); set_done(s); n = set_next(s)){
+struct node * set_first(struct set *);
+struct node * set_done(struct set *);
+struct node * set_next(struct set *);
+void * node_get_data(struct node *n);
+DATA_TYPE node_get_type(struct node *n);
+
 // the poor man's debugger
 void set_print(struct set *s);
 

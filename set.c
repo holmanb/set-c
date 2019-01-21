@@ -67,12 +67,6 @@ static struct obj  * Obj(void *, DATA_TYPE d);             // intializes Obj to 
 static void   obj_free(struct obj *);                      // frees an Obj (only do this manually if the object isn't added to a set)
 
 
-// first-done-next idiom is used for iterating the set w/a for loop
-static struct node * set_first(struct set *);
-static struct node * set_done(struct set *);
-static struct node * set_next(struct set *);
-
-
 // for use in set_delete() and set_member()
 static int obj_equal_adt(struct set * s, struct obj *, struct obj *);
 
@@ -83,6 +77,13 @@ static void print_type(struct node * );
 /*for reference counting (most likely removing this)*/
 //struct set * set_get(struct set *);
 //struct set * set_put(struct set *);
+
+void * node_get_data(struct node *n){
+    return (void *)n->obj->data;
+}
+DATA_TYPE node_get_type(struct node *n){
+    return n->obj->type;
+}
 
 // user operation on two sets - must free returned set
 struct set * set_complement(struct set *A, struct set *B){
