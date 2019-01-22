@@ -12,7 +12,10 @@
 *   1. implement more set operations (difference, is_subset, is_superset)
 *   2. implement interface such that user may define print statement
 *   3. write test to verify intersection and union
-* 
+*   4. implement set_pop - THINK ABOUT THIS - should we really have the iterator exposed?
+*   what if someone does something that modifies the set (add or remove a node), in the middle of iterating?
+*   maybe just remove the iterators and rely on pop instead? or should we do a bunch of testing and verify 
+*   that nothing will break?
 ********************************/
 
 

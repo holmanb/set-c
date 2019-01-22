@@ -82,7 +82,7 @@ struct set * set_complement(struct set *A, struct set *B);
 int set_subset(struct set *A, struct set *B);
 
 
-// iterate a set: first-done-next idiom is used 
+// iterate a set: first-done-next idiom is implemented for use with for loop 
 // example:
 //    struct node *n;
 //    for(n=set_first(s); set_done(s); n = set_next(s)){
@@ -92,7 +92,8 @@ struct node * set_next(struct set *);
 void * node_get_data(struct node *n);
 DATA_TYPE node_get_type(struct node *n);
 
-// the poor man's debugger
+// prints value of items in the set
+// TODO: implement printing user data types
 void set_print(struct set *s);
 
 //#endif
