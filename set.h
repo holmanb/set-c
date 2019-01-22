@@ -3,6 +3,7 @@
 
 // forward declare to hide implementation
 struct set;
+struct node;
 
 
 // This enum is used to define the object type so that 
@@ -76,6 +77,10 @@ struct set * set_symetric_diff(struct set *s1, struct set *s2);
 
 // returns a set that is the complement of A given B (A-B)
 struct set * set_complement(struct set *A, struct set *B);
+
+// returns true if A is a subset of B 
+int set_subset(struct set *A, struct set *B);
+
 
 // iterate a set: first-done-next idiom is used 
 // example:

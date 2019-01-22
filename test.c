@@ -4,6 +4,8 @@
 #include "util.h" // isn't necessary for user apps
 #include "set.h"  // only set.h is necessary for user apps
 
+#define PASS "PASS - "
+#define FAIL "FAIL - "
 
 /*
 basic testing of the functionality  
@@ -41,32 +43,32 @@ int main(){
 
     // testing set_member() function
     //printf("testing if i3 (%d) is a member: \n\t", *i3);
-    assert(set_member(new_set2, i3, INT),"set_member() not working properly [1]\n");
+    assert(set_member(new_set2, i3, INT),FAIL "set_member() not working properly [1]\n");
         
     // testing set_member() function
-    assert(!set_member(new_set2, i4, INT), "set_member() not working properly [2]\n");
-    printf("basic set_member() tests passed\n");
+    assert(!set_member(new_set2, i4, INT),FAIL "set_member() not working properly [2]\n");
+    printf(PASS "set_member() \n");
 
     // i4 is equal to i5, so this should fail
     set_add(new_set2, i4, INT);
     int y = set_add(new_set2, i5, INT);
-    assert(y,"set_add() didn't deny adding duplicate\n");
+    assert(y,FAIL "set_add() didn't deny adding duplicate\n");
 
     int n=set_length(new_set2);
     
     set_delete(new_set2, i4, INT);
-    assert(n-1==(set_length(new_set2)), "set_delete() or set_length() is broken()\n");
+    assert(n-1==(set_length(new_set2)), FAIL "set_delete() or set_length() is broken\n");
 
     set_delete(new_set2, i2, INT);
-    assert(n-2==(set_length(new_set2)), "set_delete() or set_length() is broken()\n");
+    assert(n-2==(set_length(new_set2)), FAIL "set_delete() or set_length() is broken\n");
 
     set_delete(new_set2, i1, INT);
-    assert(n-3==(set_length(new_set2)), "set_delete() or set_length() is broken()\n");
+    assert(n-3==(set_length(new_set2)), FAIL "set_delete() or set_length() is broken\n");
 
     set_delete(new_set2, i3, INT);
     assert(n-4==(set_length(new_set2)), "set_delete() or set_length() is broken()\n");
 
-    printf("set_delete() and set_length() tests passed\n");
+    printf(PASS "set_delete() and set_length() tests \n");
 
     set_free(new_set2);
     free(i1);
@@ -107,14 +109,14 @@ int main(){
     
     set_add_adt(s,&test_equality_function, USER_DEFINED); 
 
-    assert(set_length(s) == 0, "there shouldn't be any items in the set yet\n");
+    assert(set_length(s) == 0, FAIL "there shouldn't be any items in the set yet\n");
     set_add(s, c1, USER_DEFINED);
-    assert(set_length(s) == 1, "there should only be one item in the set \n");
+    assert(set_length(s) == 1, FAIL "there should only be one item in the set \n");
     set_add(s, c2, USER_DEFINED);
-    assert(set_length(s) == 1, "there should only be one item in the set \n");
+    assert(set_length(s) == 1, FAIL "there should only be one item in the set \n");
     set_add(s, c3, USER_DEFINED);
-    assert(set_length(s) == 2, "there should only be two items in the set \n");
-    printf("abstract data type support tests passed\n");
+    assert(set_length(s) == 2, FAIL "there should only be two items in the set \n");
+    printf(PASS "abstract data type support tests passed\n");
     
 
     free(c1);
@@ -137,29 +139,39 @@ int main(){
     result = set_union(ms1, ms2);
 
     // test union
-    assert((set_length(result) == 3), "set union failed, set should have length=3\n");
-    assert(set_member(result,&a,INT), "set union failed, set should have INT value=1");
-    assert(set_member(result,&b,INT), "set union failed, set should have INT value=2");
-    assert(set_member(result,&c,INT), "set union failed, set should have INT value=3");
+    assert((set_length(result) == 3),FAIL  "set union failed, set should have length=3\n");
+    assert(set_member(result,&a,INT),FAIL  "set union failed, set should have INT value=1");
+    assert(set_member(result,&b,INT),FAIL  "set union failed, set should have INT value=2");
+    assert(set_member(result,&c,INT),FAIL  "set union failed, set should have INT value=3");
     set_free(result);
+    printf(PASS "union operation tests passed\n");
 
     // test intersection
     result = set_intersection(ms1, ms2);
-    assert((set_length(result) == 1), "set intersection failed, set should have length=1\n");
-    assert(set_member(result,&b,INT), "set intersection failed, set should have INT value=3");
+    assert((set_length(result) == 1), FAIL "set intersection failed, set should have length=1\n");
+    assert(set_member(result,&b,INT), FAIL "set intersection failed, set should have INT value=3");
     set_free(result);
+    printf(PASS "intersection operation tests passed\n");
 
+    // test symmetric difference 
     result = set_symetric_diff(ms1, ms2);
-    assert((set_length(result) == 2), "set symmetric difference failed, set should have length=2\n");
-    assert(set_member(result,&a,INT), "set symmetric difference failed, set should have INT value=1");
-    assert(set_member(result,&c,INT), "set symmetric difference failed, set should have INT value=3");
+    assert((set_length(result) == 2),FAIL  "set symmetric difference failed, set should have length=2\n");
+    assert(set_member(result,&a,INT),FAIL  "set symmetric difference failed, set should have INT value=1");
+    assert(set_member(result,&c,INT),FAIL  "set symmetric difference failed, set should have INT value=3");
     set_free(result);
+    printf(PASS "symmetric difference operation tests passed\n");
     
+    // test complement
     result = set_complement(ms1, ms2);
-    assert((set_length(result) == 1), "set complement failed, set should have length=1\n");
-    assert(set_member(result,&a,INT), "set complement failed, set should have INT value=1");
+    assert((set_length(result) == 1), FAIL "set complement failed, set should have length=1\n");
+    assert(set_member(result,&a,INT), FAIL "set complement failed, set should have INT value=1");
+    printf(PASS "complement operation tests passed\n");
+
+    // test subset
+    assert(set_subset(result,ms1), FAIL "set subset failed, result is a subset of ms1\n"); 
+    assert(!set_subset(ms2,ms1), FAIL "set subset failed, ms1 is not a subset of ms2\n"); 
     set_free(result);
-    printf("union, complement, symmetric differece, and intersection set operation tests passed\n");
+    printf(PASS "subset operation tests passed\n");
 
     set_free(ms1);
     set_free(ms2);

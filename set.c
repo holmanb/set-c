@@ -74,16 +74,30 @@ static int obj_equal_adt(struct set * s, struct obj *, struct obj *);
 // for debugging
 static void print_type(struct node * );
 
-/*for reference counting (most likely removing this)*/
-//struct set * set_get(struct set *);
-//struct set * set_put(struct set *);
 
+// get the data in a node
 void * node_get_data(struct node *n){
     return (void *)n->obj->data;
 }
+
+
+// get the node type
 DATA_TYPE node_get_type(struct node *n){
     return n->obj->type;
 }
+
+
+// returns true if A is a subset of B 
+int set_subset(struct set *A, struct set *B){
+    struct node *n;
+    for(n=set_first(A); set_done(A); n = set_next(A)){
+        if(!set_member(B, n->obj->data, n->obj->type)){
+            return 0;
+        }
+    }
+    return 1;
+}
+
 
 // user operation on two sets - must free returned set
 struct set * set_complement(struct set *A, struct set *B){
