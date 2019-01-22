@@ -1,8 +1,10 @@
 NAME
+
 	set_init, set_free, set_add, set_delete, set_member, set_length, set_union,
 	set_complement, set_subset, set_intersection, set_print
 
 SYNOPSIS
+
 	#include "set.h"
 
 	struct set * set_init(void);
@@ -43,6 +45,7 @@ SYNOPSIS
 
 
 DESCRIPTION
+
 	In this implementation a single set may contain multiple data types (including user 
 	defined types). 
 	
