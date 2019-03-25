@@ -45,20 +45,30 @@ struct set {
     struct node *tail;
     struct node *iter;
     struct node *iter_next; // required to free the sll
-    unsigned int num;
-    DATA_TYPE * dt;
     struct usr_type *custom_types;
+    unsigned int num;
     unsigned int num_adts;
+    DATA_TYPE * dt;
+    /* 4 bytes of slop */
 };
 
 
 // stores info about the user's abstract data type
 struct usr_type {
     DATA_TYPE type; // User may add their own enum to the DATA_TYPE 
-    union {
-        ptr_equality type_equal;
-        void (* print_type)(void *); // perhaps something like this for printing abstract data types
-    };
+    ptr_equality type_equal;
+    /* 4 bytes wasted here */
+
+        /*
+         * Perhaps in the future, a struct of function 
+         * pointers could exist that contains the required
+         * user defined equality operator as well as optionally
+         * a print operator (see function proto below), and
+         * a comparasin operator (for sorting/searching), etc
+         *
+         *  void (* print_type)(void *); // print user defined ADT
+         *
+         * */
 };
 
 
