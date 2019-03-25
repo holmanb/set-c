@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "util.h" // isn't necessary for user apps
+#include "util.h" // isn't required for user apps, used for "xalloc()"
 #include "set.h"  // only set.h is necessary for user apps
 
 #define PASS "PASS - "

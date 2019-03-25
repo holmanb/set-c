@@ -1,5 +1,5 @@
-//#ifndef SET_H
-//#define SET_H
+#ifndef SET_H
+#define SET_H
 
 // forward declare to hide implementation
 struct set;
@@ -96,4 +96,4 @@ DATA_TYPE node_get_type(struct node *n);
 // TODO: implement printing user data types
 void set_print(struct set *s);
 
-//#endif
+#endif

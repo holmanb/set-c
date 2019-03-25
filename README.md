@@ -1,7 +1,24 @@
-NAME
+# set-c: generic set implementation in C
+
+SUMMARY
+
+	Generic set implementation with support for multi-type sets as well
+	as user defined data types (yes, even complex numbers!!)
+
+FUNCTIONS
 
 	set_init, set_free, set_add, set_delete, set_member, set_length, set_union,
 	set_complement, set_subset, set_intersection, set_print
+
+METHODOLOGY
+
+	set-c is implemented as a linked list of void pointers, but internal
+	data structures should be treated as opaque.  An interface is provided
+	for adding user-defined data structures and for manipulating the set 
+	data structure.  The interface is very simple.  This README, the 
+	example code in test.c, and the functions/data structures exposed in 
+	the header file should be enough to get you started.  If additional
+	documentation is required, please create an issue on github.
 
 SYNOPSIS
 
@@ -64,8 +81,3 @@ DESCRIPTION
 	function for comparing equality of the type must be created.  The function set_add_adt 
 	is used for registering the custom type.  Look in test.c for an example.
 	
-	
-	
-
-	
-
