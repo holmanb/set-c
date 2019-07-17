@@ -27,12 +27,14 @@ int main(){
     int *i3 = xalloc(sizeof(int)); 
     int *i4 = xalloc(sizeof(int)); 
     int *i5 = xalloc(sizeof(int)); 
+    char *c4 = xalloc(sizeof(char)); 
     
     *i1 = 1024;
     *i2 = 2048;
     *i3 = 4096;
     *i4 = 8192;
     *i5 = 8192;
+    *c4 = 'c';
 
 
     new_set2 = set_init();
@@ -40,6 +42,7 @@ int main(){
     set_add(new_set2, i1, INT);
     set_add(new_set2, i2, INT);
     set_add(new_set2, i3, INT);
+    set_add(new_set2, c4, CHAR);
 
     // testing set_member() function
     //printf("testing if i3 (%d) is a member: \n\t", *i3);
@@ -47,6 +50,10 @@ int main(){
         
     // testing set_member() function
     assert(!set_member(new_set2, i4, INT),FAIL "set_member() not working properly [2]\n");
+    printf(PASS "set_member() \n");
+
+    // testing set_member() function
+    assert(set_member(new_set2, c4, CHAR),FAIL "set_member() not working properly [3]\n");
     printf(PASS "set_member() \n");
 
     // i4 is equal to i5, so this should fail
@@ -68,12 +75,16 @@ int main(){
     set_delete(new_set2, i3, INT);
     assert(n-4==(set_length(new_set2)), "set_delete() or set_length() is broken()\n");
 
+    set_delete(new_set2, c4, CHAR);
+    assert(n-5==(set_length(new_set2)), "set_delete() or set_length() is broken()\n");
+
     printf(PASS "set_delete() and set_length() tests \n");
 
     set_free(new_set2);
     free(i1);
     free(i2);
     free(i3);
+    free(c4);
     free(i4);
     free(i5);
     

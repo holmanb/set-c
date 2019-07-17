@@ -10,6 +10,7 @@ struct node;
 // a single set can have multiple types in it AND support
 // abstract data types in a simple manner
 typedef enum {
+    _NUL, // placeholder prevents type null-checking false alarms on CHAR
     CHAR,
     UCHAR,
     SHORT,
