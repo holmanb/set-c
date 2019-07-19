@@ -57,6 +57,7 @@ struct set {
 struct usr_type {
     DATA_TYPE type; // User may add their own enum to the DATA_TYPE 
     ptr_equality type_equal;
+    ptr_print type_print;
     /* 4 bytes wasted here */
 
         /*
@@ -85,7 +86,7 @@ static int obj_equal_adt(struct set * s, struct obj *, struct obj *);
 
 
 // for debugging
-static void print_type(struct node * );
+static void print_type(struct set *, struct node *);
 
 
 // get the data in a node
@@ -172,15 +173,16 @@ struct set * set_intersection(struct set *s1, struct set *s2){
 
 
 // add an abstract data type 
-int  set_add_adt(struct set * s, ptr_equality is_equal, DATA_TYPE dt){
+int  set_add_adt(struct set * s, struct adt_funcs *f, DATA_TYPE dt){
     checkNull(s);
-    checkNull(is_equal);
+    checkNull(f);
     checkNull(dt);
     
     // increase size of adt pointer 
     struct usr_type * ut = xalloc(sizeof(struct usr_type));
     ut->type = dt;
-    ut->type_equal = is_equal;
+    ut->type_equal = f->ptr_equality;
+    ut->type_print = f->ptr_print;
     s->num_adts += 1;
     s->custom_types = xrealloc(s->custom_types, sizeof(struct usr_type) * (s->num_adts));
     s->custom_types[s->num_adts-1] = *ut;
@@ -197,7 +199,7 @@ int  set_length(struct set *s){
 
 
 // print value of non-adts (should this support adts in the future?)
-static void print_type(struct node * n){
+static void print_type(struct set *s, struct node * n){
     checkNull(n);
     checkNull(n->obj);
     checkNull(n->obj->data);
@@ -220,8 +222,18 @@ static void print_type(struct node * n){
         case DOUBLE:        printf("double %f\n",(*(double *)n->obj->data)); break;
         case LONG_DOUBLE:   printf("long double %Lf\n",(*(long double *)n->obj->data)); break;
         default: 
-        // need to add support for printing custom type
-        printf("custom type at address %p\n",n->obj->data);
+		// print adt
+		for(int i=0; i < (s->num_adts); i++){
+		    if(s->custom_types[i].type == n->obj->type){
+
+                        // if the function ptr is null
+                        if(!s->custom_types[i].type_print) { break; }
+			s->custom_types[i].type_print(n->obj->data); 
+			break;
+		    }
+		}
+		// need to add support for printing custom type
+		printf("custom type at address %p (custom type print function is undefined)\n",n->obj->data);
     }
 
 }
@@ -236,7 +248,7 @@ void set_print(struct set *s){
     int x=0;
     for(n=set_first(s); set_done(s); n = set_next(s)){
         printf("\t[%d]: from ptr %p: value=", x, n);
-        print_type(n);
+        print_type(s, n);
         x++;
     }
     printf("done printing the set\n");
@@ -495,3 +507,6 @@ struct node * set_next(struct set *s){
     return s->iter;
 }
 
+int set_num_adts(struct set *s){
+    return s->num_adts;
+}

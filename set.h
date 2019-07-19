@@ -25,6 +25,7 @@ typedef enum {
     DOUBLE,
     UDOUBLE,
     LONG_DOUBLE,
+    STRING,
     /*
     ###########################################
     # DO NOT DELETE ABOVE FIELDS OF THIS ENUM #
@@ -44,10 +45,16 @@ typedef enum {
 
 // equality function for user defined data type
 typedef int (*ptr_equality)(void*, void*);
+typedef int (*ptr_print)(void *);
 
+
+struct adt_funcs{
+	int (*ptr_equality)(void*,void*);
+	int (*ptr_print)(void *);
+};
 
 // add user defined data types via this function
-int  set_add_adt(struct set * s, ptr_equality is_equal, DATA_TYPE dt);  // note: this may change to support more than just an equality function
+int  set_add_adt(struct set *, struct adt_funcs *, DATA_TYPE dt);  // note: this may change to support more than just an equality function
 
 
 // malloc and free
@@ -97,4 +104,5 @@ DATA_TYPE node_get_type(struct node *n);
 // TODO: implement printing user data types
 void set_print(struct set *s);
 
+int set_num_adts(struct set *s);
 #endif
