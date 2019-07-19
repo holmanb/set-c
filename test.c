@@ -13,6 +13,24 @@ basic testing of the functionality
 this isn't a test framework, just some basic sanity checking to aid in development
 in addition, this should serve as a reference for how to use the data structure
 */
+struct usr_defined_custom{
+    int i;
+    char j;
+};
+
+int string_equality_function(void *ut1, void * ut2){
+    return !strcmp((char *)ut1,(char*)ut2);
+}
+int string_print(void *val){
+    printf("%s\n", (char*)val);
+    return 0;
+}
+    // SAMPLE USER DEFINED FUNCTION:
+    // checks to see if the integers are equal
+int test_equality_function(void * ut1, void * ut2){
+    return !(((struct usr_defined_custom *)ut1)->i != ((struct usr_defined_custom *)ut2)->i || \
+    ((struct usr_defined_custom *)ut1)->j != ((struct usr_defined_custom *)ut2)->j);
+}
 
 int main(){
         
@@ -93,10 +111,6 @@ int main(){
 
     struct set * s = NULL;
     s = set_init();
-    struct usr_defined_custom{
-       int i;
-       char j;
-    };
     
     struct usr_defined_custom *c1,*c2, *c3;
     c1 = xalloc(sizeof(struct usr_defined_custom));
@@ -112,12 +126,6 @@ int main(){
     c3->i=0;
     c3->j='d';
 
-    // SAMPLE USER DEFINED FUNCTION:
-    // checks to see if the integers are equal
-    int test_equality_function(void * ut1, void * ut2){
-        return !(((struct usr_defined_custom *)ut1)->i != ((struct usr_defined_custom *)ut2)->i || \
-        ((struct usr_defined_custom *)ut1)->j != ((struct usr_defined_custom *)ut2)->j);
-    }
 
     
     struct adt_funcs test_adt;
@@ -193,13 +201,6 @@ int main(){
     set_free(ms1);
     set_free(ms2);
     
-    int string_equality_function(void *ut1, void * ut2){
-        return !strcmp((char *)ut1,(char*)ut2);
-    }
-    int string_print(void *val){
-        printf("%s\n", (char*)val);
-	return 0;
-    }
     struct set * s8 = set_init();
     struct adt_funcs f;
     f.ptr_equality =  string_equality_function;
