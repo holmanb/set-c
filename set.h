@@ -68,7 +68,7 @@ int set_delete(struct set * s, void * d, DATA_TYPE t);
 
 
 // get length of set
-int set_length(struct set * s);
+unsigned int set_length(struct set * s);
 
 
 // check if value is in set already
@@ -104,5 +104,5 @@ DATA_TYPE node_get_type(struct node *n);
 // TODO: implement printing user data types
 void set_print(struct set *s);
 
-int set_num_adts(struct set *s);
+unsigned int set_num_adts(struct set *s);
 #endif

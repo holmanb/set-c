@@ -160,27 +160,27 @@ struct set * set_intersection(struct set *s1, struct set *s2){
 }
 
 
-// add an abstract data type 
+// add an abstract data type (no error checking is done here)
 int set_add_adt(struct set * s, struct adt_funcs *f, DATA_TYPE dt){
     checkNull(s);
     checkNull(f);
     checkNull(dt);
     
     // increase size of adt pointer 
-    struct usr_type * ut = xalloc(sizeof(struct usr_type));
-    ut->type = dt;
-    ut->type_equal = f->ptr_equality;
-    ut->type_print = f->ptr_print;
+    s->custom_types = xrealloc(s->custom_types, sizeof(struct usr_type) * (s->num_adts + 1));
+
+    // set values
+    s->custom_types[s->num_adts].type = dt;
+    s->custom_types[s->num_adts].type_equal = f->ptr_equality;
+    s->custom_types[s->num_adts].type_print = f->ptr_print;
     s->num_adts += 1;
-    s->custom_types = xrealloc(s->custom_types, sizeof(struct usr_type) * (s->num_adts));
-    s->custom_types[s->num_adts-1] = *ut;
-    free(ut);
+
     return 0;
 }
 
 
 // get the length of a set
-int  set_length(struct set *s){ 
+unsigned int set_length(struct set *s){
     checkNull(s);
     return s->num; 
 }
@@ -188,6 +188,7 @@ int  set_length(struct set *s){
 
 // print value of non-adts (should this support adts in the future?)
 static void print_type(struct set *s, struct node * n){
+    checkNull(s);
     checkNull(n);
     checkNull(n->obj);
     checkNull(n->obj->data);
@@ -210,20 +211,20 @@ static void print_type(struct set *s, struct node * n){
         case DOUBLE:        printf("double %f\n",(*(double *)n->obj->data)); break;
         case LONG_DOUBLE:   printf("long double %Lf\n",(*(long double *)n->obj->data)); break;
         default: 
-		// print adt
-		for(int i=0; i < (s->num_adts); i++){
-		    if(s->custom_types[i].type == n->obj->type){
 
-                        // if the function ptr is null
-                        if(!s->custom_types[i].type_print) { break; }
-			s->custom_types[i].type_print(n->obj->data); 
-			return;
-		    }
-		}
-		// need to add support for printing custom type
-		printf("custom type at address %p (custom type print function is undefined)\n",n->obj->data);
+            // print adt
+            for(unsigned int i=0; i < (s->num_adts); i++){
+                if(s->custom_types[i].type == n->obj->type){
+
+                // if the function ptr is null
+                if(!s->custom_types[i].type_print) { break; }
+    	        s->custom_types[i].type_print(n->obj->data); 
+    	        return;
+            }
+        }
+        // need to add support for printing custom type
+        printf("custom type at address %p (custom type print function is undefined)\n",n->obj->data);
     }
-
 }
 
 
@@ -234,7 +235,7 @@ void set_print(struct set *s){
     struct node * n;
     int x=0;
     for(n=set_first(s); set_done(s); n = set_next(s)){
-        printf("\t[%d]: from ptr %p: value=", x, n);
+        printf("\t[%d]: from ptr %p: value=", x, (void *)n);
         print_type(s, n);
         x++;
     }
@@ -348,14 +349,14 @@ int obj_equal_adt(struct set * s, struct obj * o1, struct obj * o2){
         case UINT:          return (*(unsigned int *)o1->data == *(unsigned int *) o2->data);
         case LONG:          return (*(long *)o1->data == *(long *)o2->data);
         case LONG_LONG:     return (*(long long *)o1->data == *(long long *) o2->data);
-        case ULONG_LONG:    return (*(unsigned long long *)o1->data == *(long long *) o2->data);
+        case ULONG_LONG:    return (*(unsigned long long *)o1->data == *(unsigned long long *) o2->data);
         case ULONG:         return (*(unsigned long *)o1->data == *(unsigned long *) o2->data);
         case FLOAT:         return (*(float *)o1->data == *(float *) o2->data);
         case DOUBLE:        return (*(double *)o1->data == *(double *) o2->data); 
         case LONG_DOUBLE:   return (*(long double *)o1->data == *(long double *) o2->data);
         default: 
 
-        for(int i=0; i < (s->num_adts); i++){
+        for(unsigned int i=0; i < (s->num_adts); i++){
             if(s->custom_types[i].type == o1->type){
                 return s->custom_types[i].type_equal(o1->data,o2->data); 
             }
@@ -493,6 +494,6 @@ struct node * set_next(struct set *s){
     return s->iter;
 }
 
-int set_num_adts(struct set *s){
+unsigned int set_num_adts(struct set *s){
     return s->num_adts;
 }

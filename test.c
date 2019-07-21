@@ -18,9 +18,11 @@ struct usr_defined_custom{
     char j;
 };
 
+int string_equality_function(void *ut1, void * ut2);
 int string_equality_function(void *ut1, void * ut2){
     return !strcmp((char *)ut1,(char*)ut2);
 }
+int string_print(void *val);
 int string_print(void *val){
     printf("%s\n", (char*)val);
     return 0;
@@ -28,12 +30,13 @@ int string_print(void *val){
 
 // SAMPLE USER DEFINED FUNCTION:
 // checks to see if the integers are equal
+int test_equality_function(void * ut1, void * ut2);
 int test_equality_function(void * ut1, void * ut2){
     return !(((struct usr_defined_custom *)ut1)->i != ((struct usr_defined_custom *)ut2)->i || \
     ((struct usr_defined_custom *)ut1)->j != ((struct usr_defined_custom *)ut2)->j);
 }
 
-int main(){
+int main(void){
         
     struct set * new_set1=NULL;
     new_set1 = set_init();
@@ -81,7 +84,7 @@ int main(){
     int y = set_add(new_set2, i5, INT);
     assert(y,FAIL "set_add() didn't deny adding duplicate\n");
 
-    int n=set_length(new_set2);
+    unsigned int n=set_length(new_set2);
     
     set_delete(new_set2, i4, INT);
     assert(n-1==(set_length(new_set2)), FAIL "set_delete() or set_length() is broken\n");

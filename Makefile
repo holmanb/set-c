@@ -1,5 +1,5 @@
 CC = gcc
-CC_FLAGS = -g -Wall
+CC_FLAGS = -g -pedantic -Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes -Wshadow -Wconversion
 
 EXEC=test
 SOURCES = $(wildcard *.c)
