@@ -205,6 +205,7 @@ int main(void){
     set_free(ms1);
     set_free(ms2);
     
+    // test adts
     struct set * s8 = set_init();
     struct adt_funcs f;
     f.ptr_equality =  string_equality_function;
@@ -213,6 +214,7 @@ int main(void){
     char *str1 = "test string1";
     char *str2 = "test string2";
     char *str3 = "test string3";
+    char *str4 = "test string%d";
     set_add(s8, str1, STRING);
     set_add(s8, str2, STRING);
     set_add(s8, str3, STRING);
@@ -220,9 +222,31 @@ int main(void){
     set_add(s8, str3, STRING);
     assert(set_length(s8)==3,FAIL "Incorrect number of adts\n");
     assert(set_member(s8, str3, STRING), FAIL "str3 is not a member\n");
-    set_print(s8);
-
+    //set_print(s8);
     set_free(s8);
+
+
+
+    // test adts at scale
+    //const long unsigned int size=20000;
+    const long unsigned int size=8;
+    struct set * s9 = set_init();
+    set_add_adt(s9, &f, STRING); 
+    char ** bufs = xalloc(size * sizeof(char *));
+    for (long unsigned int i=0; i<size; i++){
+        char *buf = xalloc(512);
+	bufs[i] = buf;
+        snprintf(buf, 512, str4, i);  
+	set_add(s9, buf, STRING);
+    }
+    printf("set length %d\n", set_length(s8));
+    set_print(s9);
+    set_free(s9);
+    for (long unsigned int i=0; i<size; i++){
+        free(bufs[i]);
+    }
+    free(bufs);
+
     return 0;
 }
 

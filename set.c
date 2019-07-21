@@ -321,7 +321,7 @@ struct obj  * Obj(void * v, DATA_TYPE t){
     checkNull(v);
     checkNull(t);
     struct obj * o = obj_init();
-    o->data = (void*)v;
+    o->data = v;
     o->type = t;
     return o;
 }
@@ -494,6 +494,8 @@ struct node * set_next(struct set *s){
     return s->iter;
 }
 
+
+// returns the number of adts loaded into the set
 unsigned int set_num_adts(struct set *s){
     return s->num_adts;
 }
