@@ -58,18 +58,6 @@ struct usr_type {
     DATA_TYPE type; // User may add their own enum to the DATA_TYPE 
     ptr_equality type_equal;
     ptr_print type_print;
-    /* 4 bytes wasted here */
-
-        /*
-         * Perhaps in the future, a struct of function 
-         * pointers could exist that contains the required
-         * user defined equality operator as well as optionally
-         * a print operator (see function proto below), and
-         * a comparasin operator (for sorting/searching), etc
-         *
-         *  void (* print_type)(void *); // print user defined ADT
-         *
-         * */
 };
 
 
@@ -173,7 +161,7 @@ struct set * set_intersection(struct set *s1, struct set *s2){
 
 
 // add an abstract data type 
-int  set_add_adt(struct set * s, struct adt_funcs *f, DATA_TYPE dt){
+int set_add_adt(struct set * s, struct adt_funcs *f, DATA_TYPE dt){
     checkNull(s);
     checkNull(f);
     checkNull(dt);
@@ -229,7 +217,7 @@ static void print_type(struct set *s, struct node * n){
                         // if the function ptr is null
                         if(!s->custom_types[i].type_print) { break; }
 			s->custom_types[i].type_print(n->obj->data); 
-			break;
+			return;
 		    }
 		}
 		// need to add support for printing custom type
@@ -243,7 +231,6 @@ static void print_type(struct set *s, struct node * n){
 void set_print(struct set *s){
     
     checkNull(s);
-    printf("printing the set pointers\n");
     struct node * n;
     int x=0;
     for(n=set_first(s); set_done(s); n = set_next(s)){
@@ -251,7 +238,6 @@ void set_print(struct set *s){
         print_type(s, n);
         x++;
     }
-    printf("done printing the set\n");
 }
 
 

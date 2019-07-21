@@ -25,8 +25,9 @@ int string_print(void *val){
     printf("%s\n", (char*)val);
     return 0;
 }
-    // SAMPLE USER DEFINED FUNCTION:
-    // checks to see if the integers are equal
+
+// SAMPLE USER DEFINED FUNCTION:
+// checks to see if the integers are equal
 int test_equality_function(void * ut1, void * ut2){
     return !(((struct usr_defined_custom *)ut1)->i != ((struct usr_defined_custom *)ut2)->i || \
     ((struct usr_defined_custom *)ut1)->j != ((struct usr_defined_custom *)ut2)->j);
@@ -204,20 +205,18 @@ int main(){
     struct set * s8 = set_init();
     struct adt_funcs f;
     f.ptr_equality =  string_equality_function;
+    f.ptr_print = string_print;
     set_add_adt(s8, &f, STRING); 
     char *str1 = "test string1";
     char *str2 = "test string2";
     char *str3 = "test string3";
-    printf("set length %d\n",set_length(s8));
     set_add(s8, str1, STRING);
-    printf("set length %d\n",set_length(s8));
     set_add(s8, str2, STRING);
-    printf("set length %d\n",set_length(s8));
     set_add(s8, str3, STRING);
-    printf("set length %d\n",set_length(s8));
-    printf("num_adt: %d\n", set_num_adts(s8));
-    set_print(s8);
-    f.ptr_print =  string_print;
+    assert(set_length(s8)==3,FAIL "Incorrect number of adts\n");
+    set_add(s8, str3, STRING);
+    assert(set_length(s8)==3,FAIL "Incorrect number of adts\n");
+    assert(set_member(s8, str3, STRING), FAIL "str3 is not a member\n");
     set_print(s8);
 
     set_free(s8);
