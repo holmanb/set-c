@@ -39,20 +39,6 @@ struct obj {
 };
 
 
-// holds state information of the set
-struct set {
-    struct node *head;
-    struct node *tail;
-    struct node *iter;
-    struct node *iter_next; // required to free the sll
-    struct usr_type *custom_types;
-    unsigned int num;
-    unsigned int num_adts;
-    DATA_TYPE * dt;
-    /* 4 bytes of slop */
-};
-
-
 // stores info about the user's abstract data type
 struct usr_type {
     DATA_TYPE type; // User may add their own enum to the DATA_TYPE 

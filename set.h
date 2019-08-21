@@ -6,9 +6,7 @@ extern "C" {
 #endif
 
 // forward declare to hide implementation
-struct set;
 struct node;
-
 
 // This enum is used to define the object type so that 
 // a single set can have multiple types in it AND support
@@ -42,6 +40,19 @@ typedef enum {
     USER_DEFINED,  // see example code in test.c
 } DATA_TYPE;
 
+
+// holds state information of the set
+struct set {
+    struct node *head;
+    struct node *tail;
+    struct node *iter;
+    struct node *iter_next; // required to free the sll
+    struct usr_type *custom_types;
+    unsigned int num;
+    unsigned int num_adts;
+    DATA_TYPE * dt;
+    /* 4 bytes of slop */
+};
 
 // abstract data types are supported with a
 // user defined equality function passed along 
