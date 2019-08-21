@@ -1,6 +1,10 @@
 #ifndef SET_H
 #define SET_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // forward declare to hide implementation
 struct set;
 struct node;
@@ -105,4 +109,10 @@ DATA_TYPE node_get_type(struct node *n);
 void set_print(struct set *s);
 
 unsigned int set_num_adts(struct set *s);
+
+#ifdef __cplusplus
+}
 #endif
+
+#endif
+
