@@ -45,6 +45,7 @@ int main(void){
 
     struct set * new_set2=NULL;
 
+    int i0;
     int *i1 = xalloc(sizeof(int));
     int *i2 = xalloc(sizeof(int));
     int *i3 = xalloc(sizeof(int));
@@ -52,6 +53,7 @@ int main(void){
     int *i5 = xalloc(sizeof(int));
     char *c4 = xalloc(sizeof(char));
 
+    i0 = 512;
     *i1 = 1024;
     *i2 = 2048;
     *i3 = 4096;
@@ -62,13 +64,16 @@ int main(void){
 
     new_set2 = set_init();
 
+    set_add(new_set2, &i0, INT);
     set_add(new_set2, i1, INT);
     set_add(new_set2, i2, INT);
     set_add(new_set2, i3, INT);
     set_add(new_set2, c4, CHAR);
 
     // testing set_member() function
-    //printf("testing if i3 (%d) is a member: \n\t", *i3);
+    assert(set_member(new_set2, &i0, INT),FAIL "set_member() not working properly [1]\n");
+
+    // testing set_member() function
     assert(set_member(new_set2, i3, INT),FAIL "set_member() not working properly [1]\n");
 
     // testing set_member() function
