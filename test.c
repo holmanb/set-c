@@ -9,7 +9,7 @@
 #define FAIL "FAIL - "
 
 /*
-basic testing of the functionality  
+basic testing of the functionality
 this isn't a test framework, just some basic sanity checking to aid in development
 in addition, this should serve as a reference for how to use the data structure
 */
@@ -37,7 +37,7 @@ int test_equality_function(void * ut1, void * ut2){
 }
 
 int main(void){
-        
+
     struct set * new_set1=NULL;
     new_set1 = set_init();
     set_free(new_set1);
@@ -45,13 +45,13 @@ int main(void){
 
     struct set * new_set2=NULL;
 
-    int *i1 = xalloc(sizeof(int)); 
-    int *i2 = xalloc(sizeof(int)); 
-    int *i3 = xalloc(sizeof(int)); 
-    int *i4 = xalloc(sizeof(int)); 
-    int *i5 = xalloc(sizeof(int)); 
-    char *c4 = xalloc(sizeof(char)); 
-    
+    int *i1 = xalloc(sizeof(int));
+    int *i2 = xalloc(sizeof(int));
+    int *i3 = xalloc(sizeof(int));
+    int *i4 = xalloc(sizeof(int));
+    int *i5 = xalloc(sizeof(int));
+    char *c4 = xalloc(sizeof(char));
+
     *i1 = 1024;
     *i2 = 2048;
     *i3 = 4096;
@@ -70,7 +70,7 @@ int main(void){
     // testing set_member() function
     //printf("testing if i3 (%d) is a member: \n\t", *i3);
     assert(set_member(new_set2, i3, INT),FAIL "set_member() not working properly [1]\n");
-        
+
     // testing set_member() function
     assert(!set_member(new_set2, i4, INT),FAIL "set_member() not working properly [2]\n");
     printf(PASS "set_member() \n");
@@ -85,7 +85,7 @@ int main(void){
     assert(y,FAIL "set_add() didn't deny adding duplicate\n");
 
     unsigned int n=set_length(new_set2);
-    
+
     set_delete(new_set2, i4, INT);
     assert(n-1==(set_length(new_set2)), FAIL "set_delete() or set_length() is broken\n");
 
@@ -110,12 +110,12 @@ int main(void){
     free(c4);
     free(i4);
     free(i5);
-    
+
 
 
     struct set * s = NULL;
     s = set_init();
-    
+
     struct usr_defined_custom *c1,*c2, *c3;
     c1 = xalloc(sizeof(struct usr_defined_custom));
     c2 = xalloc(sizeof(struct usr_defined_custom));
@@ -131,12 +131,12 @@ int main(void){
     c3->j='d';
 
 
-    
+
     struct adt_funcs test_adt;
     test_adt.ptr_equality = test_equality_function;
-    set_add_adt(s,&test_adt, USER_DEFINED); 
+    set_add_adt(s,&test_adt, USER_DEFINED);
 
-    //set_add_adt(s,&test_equality_function, USER_DEFINED); 
+    //set_add_adt(s,&test_equality_function, USER_DEFINED);
 
     assert(set_length(s) == 0, FAIL "there shouldn't be any items in the set yet\n");
     set_add(s, c1, USER_DEFINED);
@@ -146,7 +146,7 @@ int main(void){
     set_add(s, c3, USER_DEFINED);
     assert(set_length(s) == 2, FAIL "there should only be two items in the set \n");
     printf(PASS "abstract data type support tests passed\n");
-    
+
 
     free(c1);
     free(c2);
@@ -182,14 +182,14 @@ int main(void){
     set_free(result);
     printf(PASS "intersection operation tests passed\n");
 
-    // test symmetric difference 
+    // test symmetric difference
     result = set_symetric_diff(ms1, ms2);
     assert((set_length(result) == 2),FAIL  "set symmetric difference failed, set should have length=2\n");
     assert(set_member(result,&a,INT),FAIL  "set symmetric difference failed, set should have INT value=1");
     assert(set_member(result,&c,INT),FAIL  "set symmetric difference failed, set should have INT value=3");
     set_free(result);
     printf(PASS "symmetric difference operation tests passed\n");
-    
+
     // test complement
     result = set_complement(ms1, ms2);
     assert((set_length(result) == 1), FAIL "set complement failed, set should have length=1\n");
@@ -197,20 +197,20 @@ int main(void){
     printf(PASS "complement operation tests passed\n");
 
     // test subset
-    assert(set_subset(result,ms1), FAIL "set subset failed, result is a subset of ms1\n"); 
-    assert(!set_subset(ms2,ms1), FAIL "set subset failed, ms1 is not a subset of ms2\n"); 
+    assert(set_subset(result,ms1), FAIL "set subset failed, result is a subset of ms1\n");
+    assert(!set_subset(ms2,ms1), FAIL "set subset failed, ms1 is not a subset of ms2\n");
     set_free(result);
     printf(PASS "subset operation tests passed\n");
 
     set_free(ms1);
     set_free(ms2);
-    
+
     // test adts
     struct set * s8 = set_init();
     struct adt_funcs f;
     f.ptr_equality =  string_equality_function;
     f.ptr_print = string_print;
-    set_add_adt(s8, &f, STRING); 
+    set_add_adt(s8, &f, STRING);
     char *str1 = "test string1";
     char *str2 = "test string2";
     char *str3 = "test string3";
@@ -231,12 +231,12 @@ int main(void){
     //const long unsigned int size=20000;
     const long unsigned int size=8;
     struct set * s9 = set_init();
-    set_add_adt(s9, &f, STRING); 
+    set_add_adt(s9, &f, STRING);
     char ** bufs = xalloc(size * sizeof(char *));
     for (long unsigned int i=0; i<size; i++){
         char *buf = xalloc(512);
 	bufs[i] = buf;
-        snprintf(buf, 512, str4, i);  
+        snprintf(buf, 512, str4, i);
 	set_add(s9, buf, STRING);
     }
     printf("set length %d\n", set_length(s8));

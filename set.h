@@ -8,7 +8,7 @@ extern "C" {
 // forward declare to hide implementation
 struct node;
 
-// This enum is used to define the object type so that 
+// This enum is used to define the object type so that
 // a single set can have multiple types in it AND support
 // abstract data types in a simple manner
 typedef enum {
@@ -33,8 +33,8 @@ typedef enum {
     # DO NOT DELETE ABOVE FIELDS OF THIS ENUM #
     ###########################################
 
-    User may add to this enum for a user defined abstract data type. 
-    The user must create a function for comparing equality of the data type. 
+    User may add to this enum for a user defined abstract data type.
+    The user must create a function for comparing equality of the data type.
     This is done using the set_add_adt() function
     */
     USER_DEFINED,  // see example code in test.c
@@ -55,7 +55,7 @@ struct set {
 };
 
 // abstract data types are supported with a
-// user defined equality function passed along 
+// user defined equality function passed along
 // with a custom DATA_TYPE to set_add_adt()
 
 // equality function for user defined data type
@@ -101,11 +101,11 @@ struct set * set_symetric_diff(struct set *s1, struct set *s2);
 // returns a set that is the complement of A given B (A-B)
 struct set * set_complement(struct set *A, struct set *B);
 
-// returns true if A is a subset of B 
+// returns true if A is a subset of B
 int set_subset(struct set *A, struct set *B);
 
 
-// iterate a set: first-done-next idiom is implemented for use with for loop 
+// iterate a set: first-done-next idiom is implemented for use with for loop
 // example:
 //    struct node *n;
 //    for(n=set_first(s); set_done(s); n = set_next(s)){

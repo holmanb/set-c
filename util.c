@@ -9,7 +9,7 @@ void * xalloc(size_t size){
     if(ptr == NULL){
         printf("Error allocating memory\n");
         exit(EXIT_FAILURE);
-    } 
+    }
     return ptr;
 }
 
@@ -18,6 +18,6 @@ void * xrealloc(void * p, size_t size){
     if(ptr == NULL){
         printf("Error reallocating memory\n");
         exit(EXIT_FAILURE);
-    } 
+    }
     return ptr;
 }

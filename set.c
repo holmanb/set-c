@@ -41,7 +41,7 @@ struct obj {
 
 // stores info about the user's abstract data type
 struct usr_type {
-    DATA_TYPE type; // User may add their own enum to the DATA_TYPE 
+    DATA_TYPE type; // User may add their own enum to the DATA_TYPE
     ptr_equality type_equal;
     ptr_print type_print;
 };
@@ -75,7 +75,7 @@ DATA_TYPE node_get_type(struct node *n){
 }
 
 
-// returns true if A is a subset of B 
+// returns true if A is a subset of B
 int set_subset(struct set *A, struct set *B){
     struct node *n;
     for(n=set_first(A); set_done(A); n = set_next(A)){
@@ -119,21 +119,21 @@ struct set * set_symetric_diff(struct set *s1, struct set *s2){
 }
 
 
-// user operation on two sets - must free returned set 
+// user operation on two sets - must free returned set
 struct set * set_union(struct set *s1, struct set *s2){
     struct set *s = set_init();
     struct node *n;
     for(n=set_first(s1); set_done(s1); n = set_next(s1)){
         set_add(s,n->obj->data, n->obj->type);
-    } 
+    }
     for(n=set_first(s2); set_done(s2); n = set_next(s2)){
         set_add(s,n->obj->data, n->obj->type);
-    } 
+    }
     return s;
 }
 
 
-// user operation on two sets - must free returned set 
+// user operation on two sets - must free returned set
 struct set * set_intersection(struct set *s1, struct set *s2){
     struct set * s = set_init();
     struct node *n;
@@ -141,7 +141,7 @@ struct set * set_intersection(struct set *s1, struct set *s2){
         if(set_member(s2,n->obj->data, n->obj->type)){
             set_add(s,n->obj->data, n->obj->type);
         }
-    } 
+    }
     return s;
 }
 
@@ -151,8 +151,8 @@ int set_add_adt(struct set * s, struct adt_funcs *f, DATA_TYPE dt){
     checkNull(s);
     checkNull(f);
     checkNull(dt);
-    
-    // increase size of adt pointer 
+
+    // increase size of adt pointer
     s->custom_types = xrealloc(s->custom_types, sizeof(struct usr_type) * (s->num_adts + 1));
 
     // set values
@@ -168,7 +168,7 @@ int set_add_adt(struct set * s, struct adt_funcs *f, DATA_TYPE dt){
 // get the length of a set
 unsigned int set_length(struct set *s){
     checkNull(s);
-    return s->num; 
+    return s->num;
 }
 
 
@@ -196,7 +196,7 @@ static void print_type(struct set *s, struct node * n){
         case FLOAT:         printf("float %f\n",(*(float *)n->obj->data)); break;
         case DOUBLE:        printf("double %f\n",(*(double *)n->obj->data)); break;
         case LONG_DOUBLE:   printf("long double %Lf\n",(*(long double *)n->obj->data)); break;
-        default: 
+        default:
 
             // print adt
             for(unsigned int i=0; i < (s->num_adts); i++){
@@ -204,7 +204,7 @@ static void print_type(struct set *s, struct node * n){
 
                 // if the function ptr is null
                 if(!s->custom_types[i].type_print) { break; }
-    	        s->custom_types[i].type_print(n->obj->data); 
+    	        s->custom_types[i].type_print(n->obj->data);
     	        return;
             }
         }
@@ -216,7 +216,7 @@ static void print_type(struct set *s, struct node * n){
 
 // print all values in the set
 void set_print(struct set *s){
-    
+
     checkNull(s);
     struct node * n;
     int x=0;
@@ -236,7 +236,7 @@ int set_delete(struct set * s, void * d, DATA_TYPE t){
     struct obj * o = Obj(d,t);
     struct node *n, *del, *last=NULL;
     for(n = set_first(s); set_done(s); n = set_next(s)){
-        
+
         // check if set contains the node to be removed
         if(obj_equal_adt(s, n->obj, o)){
             del=n;
@@ -254,8 +254,8 @@ int set_delete(struct set * s, void * d, DATA_TYPE t){
             // node to remove is head node
             } else if(del==s->head){
                 s->head = del->next;
-            } 
-            
+            }
+
             // node to remove is tail node
             else if(del==s->tail){
                 s->tail = last;
@@ -269,7 +269,7 @@ int set_delete(struct set * s, void * d, DATA_TYPE t){
             else {
                 last->next = del->next;
             }
-            
+
             // free the node
             node_free(del);
             s->num--;
@@ -302,7 +302,7 @@ int set_member(struct set *s, void *d, DATA_TYPE t){
 }
 
 
-// creates an obj pointer 
+// creates an obj pointer
 struct obj  * Obj(void * v, DATA_TYPE t){
     checkNull(v);
     checkNull(t);
@@ -338,13 +338,13 @@ int obj_equal_adt(struct set * s, struct obj * o1, struct obj * o2){
         case ULONG_LONG:    return (*(unsigned long long *)o1->data == *(unsigned long long *) o2->data);
         case ULONG:         return (*(unsigned long *)o1->data == *(unsigned long *) o2->data);
         case FLOAT:         return (*(float *)o1->data == *(float *) o2->data);
-        case DOUBLE:        return (*(double *)o1->data == *(double *) o2->data); 
+        case DOUBLE:        return (*(double *)o1->data == *(double *) o2->data);
         case LONG_DOUBLE:   return (*(long double *)o1->data == *(long double *) o2->data);
-        default: 
+        default:
 
         for(unsigned int i=0; i < (s->num_adts); i++){
             if(s->custom_types[i].type == o1->type){
-                return s->custom_types[i].type_equal(o1->data,o2->data); 
+                return s->custom_types[i].type_equal(o1->data,o2->data);
             }
         }
         fprintf(stderr, "Comparasin function not properly assigned for user defined data type\n");
@@ -361,7 +361,7 @@ int set_add(struct set *s, void *d, DATA_TYPE t) {
 
     if(set_member(s, d, t)){ return 1; } // no duplicates in a set
 
-    // create node 
+    // create node
     struct obj * o = Obj(d,t);
     struct node * new_node = node_init();
     new_node->obj = o;
@@ -388,10 +388,10 @@ struct obj * obj_init(void){
 }
 
 
-// free obj 
+// free obj
 void obj_free(struct obj * o){
     checkNull(o);
-    free(o); 
+    free(o);
     o=NULL;
 }
 
@@ -467,7 +467,7 @@ struct node * set_first(struct set *s){
 // returns true if the list has been completely iterated (for looping)
 struct node * set_done(struct set *s){
     checkNull(s);
-    return s->iter?s->iter:NULL; 
+    return s->iter?s->iter:NULL;
 }
 
 
