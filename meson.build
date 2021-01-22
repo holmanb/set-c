@@ -14,11 +14,13 @@ lib = library('setc',
   install : true)
 
 test1 = executable('initial-test',
-    'src/test.c',
+    'test/test.c',
+    include_directories : inc,
     link_with : lib)
 
 test2 = executable('example',
-    'src/example.c',
+    'test/example.c',
+    include_directories : inc,
     link_with : lib)
 
 test('validate set-c', test1)
