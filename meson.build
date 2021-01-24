@@ -3,10 +3,15 @@ project('set-c', 'c',
   license: 'MIT',
   version : '1.0.0')
 
-
+# validate memory issues
 add_test_setup('valgrind',
   exe_wrapper : ['valgrind', '--error-exitcode=1', '--leak-check=full', '--track-origins=yes', '--exit-on-first-error=yes'],
-  is_default : true)
+  is_default : false)
+
+# generate flamegraphs w/perf
+add_test_setup('perf',
+  exe_wrapper : ['test/benchmark/perf.sh'],
+  is_default : false)
 
 lib = files([
   'src/set.c',
@@ -14,15 +19,18 @@ lib = files([
 ])
 
 tests = [
-    'example',
-    'member',
-    'init',
-    'add',
-    'length_delete',
-    'adt1',
-    'adt2',
-    'adt3',
-    'set-ops',
+  'example',
+  'member',
+  'init',
+  'add',
+  'length_delete',
+  'adt1',
+  'adt2',
+  'adt3',
+  'set-ops',
+]
+benchmarks = [
+  'perf_0'
 ]
 
 inc = include_directories('src')
@@ -43,4 +51,14 @@ foreach t : tests
 
   test(t, exe)
 
+endforeach
+
+foreach b : benchmarks 
+  path = 'test/' + b +'.c'
+  exe = executable(b,
+      path,
+      include_directories : inc,
+      link_with : lib)
+
+  benchmark(b, exe)
 endforeach

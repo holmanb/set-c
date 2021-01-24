@@ -7,8 +7,7 @@
 void * xalloc(size_t size){
     void * ptr = malloc(size);
     if(ptr == NULL){
-        printf("Error allocating memory\n");
-        exit(EXIT_FAILURE);
+        die("%s", "Error allocating memory\n");
     }
     return ptr;
 }
@@ -16,8 +15,7 @@ void * xalloc(size_t size){
 void * xrealloc(void * p, size_t size){
     void * ptr = realloc(p, size);
     if(ptr == NULL){
-        printf("Error reallocating memory\n");
-        exit(EXIT_FAILURE);
+        die("%s","Error reallocating memory\n");
     }
     return ptr;
 }

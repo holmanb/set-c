@@ -66,7 +66,7 @@ int main(void){
 	f.ptr_equality =  string_equality_function;
 	f.ptr_print = string_print;
 	//const long unsigned int size=20000;
-	const long unsigned int size=8;
+	const long unsigned int size=100;
 	struct set * s9 = set_init();
 	set_add_adt(s9, &f, STRING);
 	char ** bufs = xalloc(size * sizeof(char *));

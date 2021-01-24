@@ -69,7 +69,7 @@ struct adt_funcs{
 };
 
 // add user defined data types via this function
-int  set_add_adt(struct set *, struct adt_funcs *, DATA_TYPE dt);  // note: this may change to support more than just an equality function
+int  set_add_adt(struct set *, struct adt_funcs *, DATA_TYPE dt);
 
 
 // malloc and free

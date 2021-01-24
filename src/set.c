@@ -315,40 +315,40 @@ struct obj  * Obj(void * v, DATA_TYPE t){
 
 // check if two values in set are equal (supports abstract data type comparasin)
 int obj_equal_adt(struct set * s, struct obj * o1, struct obj * o2){
-    checkNull(s);
-    checkNull(o2);
-    checkNull(o1);
-    checkNull(o1->data);
-    checkNull(o2->data);
-    checkNull(o2->type);
-    checkNull(o1->type);
-    if(o1->type != o2->type){
-        return 0;
-    }
+	checkNull(s);
+	checkNull(o2);
+	checkNull(o1);
+	checkNull(o1->data);
+	checkNull(o2->data);
+	checkNull(o2->type);
+	checkNull(o1->type);
+	if(o1->type != o2->type){
+		return 0;
+	}
 
-    switch(o1->type){
-        case CHAR:          return (*(char *)o1->data == *(char *)o2->data);
-        case UCHAR:         return (*(unsigned char *)o1->data == *(char *) o2->data);
-        case SHORT:         return (*(short *)o1->data == *(short *) o2->data);
-        case USHORT:        return (*(unsigned short*)o1->data == *(unsigned short *) o2->data);
-        case INT:           return (*(int *)o1->data == *(int *) o2->data);
-        case UINT:          return (*(unsigned int *)o1->data == *(unsigned int *) o2->data);
-        case LONG:          return (*(long *)o1->data == *(long *)o2->data);
-        case LONG_LONG:     return (*(long long *)o1->data == *(long long *) o2->data);
-        case ULONG_LONG:    return (*(unsigned long long *)o1->data == *(unsigned long long *) o2->data);
-        case ULONG:         return (*(unsigned long *)o1->data == *(unsigned long *) o2->data);
-        case FLOAT:         return (*(float *)o1->data == *(float *) o2->data);
-        case DOUBLE:        return (*(double *)o1->data == *(double *) o2->data);
-        case LONG_DOUBLE:   return (*(long double *)o1->data == *(long double *) o2->data);
-        default:
+	switch(o1->type){
+	case CHAR:          return (*(char *)o1->data == *(char *)o2->data);
+	case UCHAR:         return (*(unsigned char *)o1->data == *(char *) o2->data);
+	case SHORT:         return (*(short *)o1->data == *(short *) o2->data);
+	case USHORT:        return (*(unsigned short*)o1->data == *(unsigned short *) o2->data);
+	case INT:           return (*(int *)o1->data == *(int *) o2->data);
+	case UINT:          return (*(unsigned int *)o1->data == *(unsigned int *) o2->data);
+	case LONG:          return (*(long *)o1->data == *(long *)o2->data);
+	case LONG_LONG:     return (*(long long *)o1->data == *(long long *) o2->data);
+	case ULONG_LONG:    return (*(unsigned long long *)o1->data == *(unsigned long long *) o2->data);
+	case ULONG:         return (*(unsigned long *)o1->data == *(unsigned long *) o2->data);
+	case FLOAT:         return (*(float *)o1->data == *(float *) o2->data);
+	case DOUBLE:        return (*(double *)o1->data == *(double *) o2->data);
+	case LONG_DOUBLE:   return (*(long double *)o1->data == *(long double *) o2->data);
+	default:
 
-        for(unsigned int i=0; i < (s->num_adts); i++){
-            if(s->custom_types[i].type == o1->type){
-                return s->custom_types[i].type_equal(o1->data,o2->data);
-            }
+	for(unsigned int i=0; i < (s->num_adts); i++){
+		if(s->custom_types[i].type == o1->type){
+			return s->custom_types[i].type_equal(o1->data,o2->data);
+		}
         }
-        fprintf(stderr, "Comparasin function not properly assigned for user defined data type\n");
-        exit(EXIT_FAILURE);
+	die("%s", "abstract data type improperly initialized\n");
+	exit(EXIT_FAILURE);
     }
 }
 
