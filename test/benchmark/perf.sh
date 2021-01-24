@@ -1,18 +1,23 @@
-#!/bin/sh
+#!/bin/bash
 set -x
 
-DATA=data
+[ -z $1 ] && echo "need to pass test executiable" && exit 1
 
+FULL=$(realpath $0)
+ABS=$(dirname $FULL)
+EXE=`echo $1 | awk -F\/ '{print $NF}'`
 
-# verify argument $1
+DATADIR="$ABS/data"
+TMPDIR="$DATADIR/tmp"
+SVGDIR="$DATADIR/svg"
 
-# verify dependencies
-#[ -e perf ] || [ -e FlameGraph/stackcollapse-perf.pl ] || [ -e FlameGraph/flamegraph.pl ] || echo "must install dependencies (FlameGraph & perf)";exit
-mkdir $DATA -p
+EXEDATA="$TMPDIR/$EXE.data"
+PERFDATA="$TMPDIR/$EXE.perf"
 
-perf record -F 99 -g "$1"
-perf script > "$DATA/$1.perf"
-FlameGraph/stackcollapse-perf.pl  "$DATA/$1.perf" > "$DATA/$1.folded"
-FlameGraph/flamegraph.pl          "$DATA/$1.folded" > "$1.svg"
+mkdir $DATADIR -p
+mkdir $TMPDIR -p
+mkdir $SVGDIR -p
 
-
+perf record -F 99 -g -o "$EXEDATA" "$1"
+perf script -i "$EXEDATA" > "$PERFDATA"
+$ABS/FlameGraph/stackcollapse-perf.pl "$PERFDATA" | $ABS/FlameGraph/flamegraph.pl  > "$SVGDIR/$EXE.svg"

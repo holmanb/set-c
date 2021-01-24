@@ -10,7 +10,7 @@ add_test_setup('valgrind',
 
 # generate flamegraphs w/perf
 add_test_setup('perf',
-  exe_wrapper : ['test/benchmark/perf.sh'],
+  exe_wrapper : ['../test/benchmark/perf.sh'],
   is_default : false)
 
 lib = files([
@@ -54,7 +54,7 @@ foreach t : tests
 endforeach
 
 foreach b : benchmarks 
-  path = 'test/' + b +'.c'
+  path = 'test/benchmark/' + b +'.c'
   exe = executable(b,
       path,
       include_directories : inc,
