@@ -1,7 +1,25 @@
 project('set-c', 'c',
   meson_version: '>=0.49.0',
   license: 'MIT',
+  default_options: [
+    'optimization=3'
+  ],
   version : '1.0.0')
+
+add_project_arguments([
+  '-pedantic',
+  '-Wundef',
+  '-Wconversion',
+  '-Wshadow',
+  '-Wlogical-op',
+  '-Winit-self',
+  '-Wstrict-prototypes',
+  '-Wendif-labels',
+  '-Woverflow',
+  '-Wno-missing-braces',
+  '-Wno-missing-field-initializers',
+  '-Wno-unused-parameter',
+], language: 'c')
 
 # validate memory issues
 add_test_setup('valgrind',
@@ -30,7 +48,8 @@ tests = [
   'set-ops',
 ]
 benchmarks = [
-  'perf_0'
+  'perf_0',
+  'perf_1'
 ]
 
 inc = include_directories('src')
@@ -42,10 +61,9 @@ lib = library('setc',
 
 foreach t : tests
 
-  path = 'test/' + t +'.c'
 
   exe = executable(t,
-      path,
+      'test/' + t + '.c',
       include_directories : inc,
       link_with : lib)
 
@@ -53,10 +71,9 @@ foreach t : tests
 
 endforeach
 
-foreach b : benchmarks 
-  path = 'benchmark/' + b +'.c'
+foreach b : benchmarks
   exe = executable(b,
-      path,
+      'benchmark/' + b +'.c',
       include_directories : inc,
       link_with : lib)
 

@@ -21,7 +21,9 @@ jobs:
         run: meson build
 
       - name: Build & Test
-        run: meson test -C build --setup=valgrind
+        run: |
+          meson test -C build --setup=valgrind
+          meson test -C build --setup=valgrind --benchmark
 
 
       - name: Get logs if failure

@@ -6,37 +6,10 @@
 #include "set.h"
 
 #define SIZE 20000
-#define PASS "PASS - "
-#define FAIL "FAIL - "
-#define die(msg) printf("Error thrown %s:%d:\n"msg ,__FILE__, __LINE__);raise(SIGSEGV)
-#define assert(cond, m) \
-    if(!(cond)){die(m);}
 
-/*
-basic testing of the functionality
-this isn't a test framework, just some basic sanity checking to aid in development
-in addition, this should serve as a reference for how to use the data structure
-*/
-/*simplify and standardize response malloc*/
-void * xalloc(size_t size){
-    void * ptr = malloc(size);
-    if(ptr == NULL){
-        printf("Error allocating memory\n");
-        exit(EXIT_FAILURE);
-    }
-    return ptr;
-}
-
-void * xrealloc(void * p, size_t size){
-    void * ptr = realloc(p, size);
-    if(ptr == NULL){
-        printf("Error reallocating memory\n");
-        exit(EXIT_FAILURE);
-    }
-    return ptr;
-}
-
-
+/* tests demonstrate that performance is dominated by membership lookups
+ * consider a different datastructure for lookup performance (maybe bst?)
+ */
 int main(void){
 
 	int i;

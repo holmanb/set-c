@@ -11,5 +11,5 @@ git submodule update --recursive
 ## Usage
 this is integrated into meson such that the following command will execute all benchmarks using `perf` and create a flamegraph using Brendan Gregg's FlameGraph tooling
 ```
-meson test --benchmark --setup=perf
+meson test -C build/ --setup=perf --benchmark
 ```
