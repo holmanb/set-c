@@ -54,6 +54,12 @@ $ meson build && cd build
 $ ninja
 ```
 
+# Test
+
+```
+$ meson test
+```
+
 # Install
 
 ```
