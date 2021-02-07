@@ -5,7 +5,7 @@
 
 #include "set.h"
 
-#define SIZE 20000
+#define SIZE 2000
 
 /* tests demonstrate that performance is dominated by membership lookups
  * consider a different datastructure for lookup performance (maybe bst?)
