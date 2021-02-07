@@ -1,0 +1,32 @@
+name: ci_meson
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  linux:
+    # ubuntu-lastest ships a version of meson that is too old
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.0.0
+
+      - name: Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install gcc valgrind meson
+
+      - name: Setup
+        run: meson build
+
+      - name: Build & Test
+        run: meson test -C build --setup=valgrind
+
+
+      - name: Get logs if failure
+        uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: meson-testlog
+          path: build/meson-logs/testlog.txt
