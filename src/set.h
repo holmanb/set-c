@@ -69,7 +69,7 @@ struct adt_funcs{
 };
 
 // add user defined data types via this function
-int  set_add_adt(struct set *, struct adt_funcs *, DATA_TYPE dt);
+int  set_add_adt(struct set *, const struct adt_funcs *, const DATA_TYPE dt);
 
 
 // malloc and free
@@ -78,16 +78,16 @@ void set_free(struct set * s);
 
 
 // create and destroy values in set
-int set_add(struct set *s, void *d, DATA_TYPE t);
+int set_add(struct set *s, void *d, const DATA_TYPE t);
 int set_delete(struct set * s, void * d, DATA_TYPE t);
 
 
 // get length of set
-unsigned int set_length(struct set * s);
+unsigned int set_length(const struct set * s);
 
 
 // check if value is in set already
-int set_member(struct set *s, void *d, DATA_TYPE t);
+int set_member(struct set *s, void *d, const DATA_TYPE t);
 
 // returns a set that is the union of the two arguments
 struct set * set_union(struct set *s1, struct set *s2);
@@ -112,14 +112,14 @@ int set_subset(struct set *A, struct set *B);
 struct node * set_first(struct set *);
 struct node * set_done(struct set *);
 struct node * set_next(struct set *);
-void * node_get_data(struct node *n);
-DATA_TYPE node_get_type(struct node *n);
+void * node_get_data(const struct node *n);
+DATA_TYPE node_get_type(const struct node *n);
 
 // prints value of items in the set
 // TODO: implement printing user data types
 void set_print(struct set *s);
 
-unsigned int set_num_adts(struct set *s);
+unsigned int set_num_adts(const struct set *s);
 
 #ifdef __cplusplus
 }

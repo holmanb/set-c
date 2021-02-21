@@ -51,26 +51,26 @@ struct usr_type {
 static struct node * node_init(void);
 static void node_free(struct node *);
 static struct obj  * obj_init(void);
-static struct obj  * Obj(void *, DATA_TYPE d);             // intializes Obj to be added to a set
+static struct obj  * Obj(void *, const DATA_TYPE d);             // intializes Obj to be added to a set
 static void   obj_free(struct obj *);                      // frees an Obj (only do this manually if the object isn't added to a set)
 
 
 // for use in set_delete() and set_member()
-static int obj_equal_adt(struct set * s, struct obj *, struct obj *);
+static int obj_equal_adt(struct set * s, const struct obj *, const struct obj *);
 
 
 // for debugging
-static void print_type(struct set *, struct node *);
+static void print_type(struct set *, const struct node *);
 
 
 // get the data in a node
-void * node_get_data(struct node *n){
+void * node_get_data(const struct node *n){
     return (void *)n->obj->data;
 }
 
 
 // get the node type
-DATA_TYPE node_get_type(struct node *n){
+DATA_TYPE node_get_type(const struct node *n){
     return n->obj->type;
 }
 
@@ -147,7 +147,7 @@ struct set * set_intersection(struct set *s1, struct set *s2){
 
 
 // add an abstract data type (no error checking is done here)
-int set_add_adt(struct set * s, struct adt_funcs *f, DATA_TYPE dt){
+int set_add_adt(struct set * s, const struct adt_funcs *f, const DATA_TYPE dt){
     checkNull(s);
     checkNull(f);
     checkNull(dt);
@@ -166,14 +166,14 @@ int set_add_adt(struct set * s, struct adt_funcs *f, DATA_TYPE dt){
 
 
 // get the length of a set
-unsigned int set_length(struct set *s){
+unsigned int set_length(const struct set *s){
     checkNull(s);
     return s->num;
 }
 
 
 // print value of non-adts (should this support adts in the future?)
-static void print_type(struct set *s, struct node * n){
+static void print_type(struct set *s, const struct node * n){
     checkNull(s);
     checkNull(n);
     checkNull(n->obj);
@@ -285,7 +285,7 @@ int set_delete(struct set * s, void * d, DATA_TYPE t){
 
 
 // check if value is contained in the set
-int set_member(struct set *s, void *d, DATA_TYPE t){
+int set_member(struct set *s, void *d, const DATA_TYPE t){
     checkNull(s);
     checkNull(d);
     checkNull(t);
@@ -303,7 +303,7 @@ int set_member(struct set *s, void *d, DATA_TYPE t){
 
 
 // creates an obj pointer
-struct obj  * Obj(void * v, DATA_TYPE t){
+struct obj  * Obj(void * v, const DATA_TYPE t){
     checkNull(v);
     checkNull(t);
     struct obj * o = obj_init();
@@ -314,7 +314,7 @@ struct obj  * Obj(void * v, DATA_TYPE t){
 
 
 // check if two values in set are equal (supports abstract data type comparasin)
-int obj_equal_adt(struct set * s, struct obj * o1, struct obj * o2){
+int obj_equal_adt(struct set * s, const struct obj * o1, const struct obj * o2){
 	checkNull(s);
 	checkNull(o2);
 	checkNull(o1);
@@ -354,7 +354,7 @@ int obj_equal_adt(struct set * s, struct obj * o1, struct obj * o2){
 
 
 // add value to set
-int set_add(struct set *s, void *d, DATA_TYPE t) {
+int set_add(struct set *s, void *d, const DATA_TYPE t) {
     checkNull(s);
     checkNull(d);
     checkNull(t);
@@ -482,6 +482,6 @@ struct node * set_next(struct set *s){
 
 
 // returns the number of adts loaded into the set
-unsigned int set_num_adts(struct set *s){
+unsigned int set_num_adts(const struct set *s){
     return s->num_adts;
 }
