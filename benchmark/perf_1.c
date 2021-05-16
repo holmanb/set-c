@@ -5,7 +5,8 @@
 
 #include "set.h"
 
-#define SIZE 20000
+//#define SIZE 1<<26
+#define SIZE 1<<22
 
 int main(void){
 

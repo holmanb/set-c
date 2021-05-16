@@ -2,7 +2,8 @@ project('set-c', 'c',
   meson_version: '>=0.49.0',
   license: 'MIT',
   default_options: [
-    'optimization=3'
+    'optimization=3',
+    '-march=native'
   ],
   version : '1.0.0')
 
